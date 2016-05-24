@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate clap;
 extern crate byteorder;
+extern crate sdl2;
 
 use std::fs::File;
 use std::io::Read;

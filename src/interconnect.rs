@@ -1,3 +1,4 @@
+use super::sdl2;
 use super::memory::Memory;
 use super::graphics::Graphics;
 
@@ -8,9 +9,11 @@ pub struct Interconnect {
 
 impl Interconnect {
     pub fn new() -> Interconnect {
+        let context = sdl2::init().unwrap();
+
         return Interconnect{
             mem: Memory::new(),
-            graphics: Graphics::new(),
+            graphics: Graphics::new(&context),
         }
     }
 
