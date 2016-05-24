@@ -1,13 +1,16 @@
 use super::memory::Memory;
+use super::graphics::Graphics;
 
 pub struct Interconnect {
-    pub mem: Memory
+    pub mem: Memory,
+    pub graphics: Graphics,
 }
 
 impl Interconnect {
     pub fn new() -> Interconnect {
         return Interconnect{
-            mem: Memory::new()
+            mem: Memory::new(),
+            graphics: Graphics::new(),
         }
     }
 
@@ -15,4 +18,3 @@ impl Interconnect {
         self.mem.load_rom(rom);
     }
 }
-

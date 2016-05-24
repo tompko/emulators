@@ -1,3 +1,5 @@
+use super::byteorder::{BigEndian, ByteOrder};
+
 pub const RAM_BYTES: usize = 4*1024;
 pub const END_RESERVED: usize = 0x200;
 
@@ -16,5 +18,13 @@ impl Memory {
         for i in 0..rom.len() {
             self.ram[i + END_RESERVED] = rom[i];
         }
+    }
+
+    pub fn read_word(&self, addr: u16) -> u16 {
+        return BigEndian::read_u16(&self.ram[addr as usize..]);
+    }
+
+    pub fn read_byte(&self, addr: u16) -> u8 {
+        return self.ram[addr as usize];
     }
 }

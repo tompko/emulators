@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate clap;
+extern crate byteorder;
 
 use std::fs::File;
 use std::io::Read;
@@ -7,6 +8,7 @@ use clap::{Arg, App};
 use vm::VM;
 
 mod cpu;
+mod graphics;
 mod interconnect;
 mod memory;
 mod vm;
