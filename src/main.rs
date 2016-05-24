@@ -4,8 +4,12 @@ extern crate clap;
 use std::fs::File;
 use std::io::Read;
 use clap::{Arg, App};
+use vm::VM;
 
 mod cpu;
+mod interconnect;
+mod memory;
+mod vm;
 
 fn main() {
     let matches = App::new("CHIP 8 Emulator")
@@ -21,9 +25,10 @@ fn main() {
     let input_file = matches.value_of("INPUT").unwrap();
     let rom = read_rom(input_file);
 
-    let cpu = cpu::Cpu::new(rom);
+    let mut vm = VM::new();
 
-    cpu.Run();
+    vm.load_rom(rom);
+    vm.run();
 }
 
 fn read_rom(filename: &str) -> Vec<u8> {
