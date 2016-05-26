@@ -27,4 +27,7 @@ impl Graphics {
     pub fn draw(&mut self, x: usize, y: usize, sprite: Vec<u8>) -> u8 {
         return 0;
     }
+
+    pub fn clear(&mut self) {
+    }
 }

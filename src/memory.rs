@@ -64,4 +64,8 @@ impl Memory {
     pub fn write_byte(&mut self, addr: u16, val: u8) {
         self.ram[addr as usize] = val;
     }
+
+    pub fn get_digit_sprite(&self, val: u8) -> u16 {
+        return (val as u16) * (DIGIT_SIZE as u16);
+    }
 }
