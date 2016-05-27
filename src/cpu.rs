@@ -30,6 +30,8 @@ impl Cpu {
             let instr = interconnect.mem.read_word(self.pc);
 
             self.execute_instruction(instr, interconnect);
+
+            interconnect.graphics.render();
         }
     }
 
