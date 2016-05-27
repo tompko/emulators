@@ -28,4 +28,12 @@ impl Input {
 
         }
     }
+
+    pub fn key_pressed(&self, key_index: u8) -> bool {
+        return false;
+    }
+
+    pub fn wait_for_keypress(&self) -> u8 {
+        return 0;
+    }
 }

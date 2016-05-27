@@ -1,6 +1,7 @@
-use super::time::{Duration, SteadyTime};
 use super::interconnect::Interconnect;
 use super::memory::END_RESERVED;
+use super::rand;
+use super::time::{Duration, SteadyTime};
 
 const INSTRUCTION_SIZE: u16 = 2;
 
@@ -91,17 +92,102 @@ impl Cpu {
                     self.pc += INSTRUCTION_SIZE;
                 }
             }
+            0x4 => {
+                // 4xkk - SNE Vx, byte
+                if self.v[x] != kk {
+                    self.pc += INSTRUCTION_SIZE;
+                }
+            }
+            0x5 => {
+                // 5xy0 - SE Vx, Vy
+                if self.v[x] == self.v[y] {
+                    self.pc += INSTRUCTION_SIZE;
+                }
+            }
             0x6 => {
                 // 6xkk - LD Vx, byte
-                self.v[x as usize] = kk as u8;
+                self.v[x as usize] = kk;
             }
             0x7 => {
                 // 7xkk - ADD Vx, byte
                 self.v[x] = self.v[x].wrapping_add(kk as u8);
             }
+            0x8 => {
+                match n {
+                    0x0 => {
+                        // 8xy0 - LD Vx, Vy
+                        self.v[x] = self.v[y];
+                    }
+                    0x1 => {
+                        // 8xy1 - OR Vx, Vy
+                        self.v[x] = self.v[x] | self.v[y];
+                    }
+                    0x2 => {
+                        // 8xy2 - AND Vx, Vy
+                        self.v[x] = self.v[x] & self.v[y];
+                    }
+                    0x3 => {
+                        // 8xy3 - XOR Vx, Vy
+                        self.v[x] = self.v[x] ^ self.v[y];
+                    }
+                    0x4 => {
+                        // 8xy4 - ADD Vx, Vy
+                        let ret = (self.v[x] as u16) + (self.v[y] as u16);
+                        if ret > 255 {
+                            self.v[0xf] = 1;
+                        } else {
+                            self.v[0xf] = 0;
+                        }
+                        self.v[x] = ret as u8;
+                    }
+                    0x5 => {
+                        // 8xy5 - SUB Vx, Vy
+                        if self.v[x] > self.v[y] {
+                            self.v[0xf] = 1;
+                        } else {
+                            self.v[0xf] = 0;
+                        }
+                        self.v[x] = self.v[x].wrapping_sub(self.v[y]);
+                    }
+                    0x6 => {
+                        // 8xy6 - SHR Vx {, Vy}
+                        self.v[0xf] = self.v[x] & 0x1;
+                        self.v[x] >>= 1;
+                    }
+                    0x7 => {
+                        // 8xy7 - SUBN Vx, Vy
+                        if self.v[y] > self.v[x] {
+                            self.v[0xf] = 1;
+                        } else {
+                            self.v[0xf] = 0;
+                        }
+                        self.v[x] = self.v[y].wrapping_sub(self.v[x]);
+                    }
+                    0xE => {
+                        self.v[0xf] = self.v[x] >> 7;
+                        self.v[x] <<= 1;
+                    }
+                    _ => panic!("Unrecognized 8 variant {:x}({:x})", instr, n),
+                }
+            }
+            0x9 => {
+                // 9xy0 - SNE Vx, Vy
+                if self.v[x] != self.v[y] {
+                    self.pc += INSTRUCTION_SIZE;
+                }
+            }
             0xa => {
                 // Annn - LD I, addr
                 self.i = nnn;
+            }
+            0xb => {
+                // Bnnn - JP V0, addr
+                self.pc = (self.v[0] as u16) + nnn;
+                jmp = true;
+            }
+            0xc => {
+                // Cxkk - RND Vx, byte
+                self.v[x] = rand::random::<u8>() & kk;
             }
             0xd => {
                 // Dxyn - DRW Vx, Vy, nibble
@@ -113,16 +199,45 @@ impl Cpu {
 
                 self.v[0xf] = interconnect.graphics.draw(x, y, sprite);
             }
+            0xe => {
+                match kk {
+                    0x9e => {
+                        // Ex9E - SKP Vx
+                        if interconnect.input.key_pressed(self.v[x]) {
+                            self.pc += INSTRUCTION_SIZE;
+                        }
+                    }
+                    0xa1 => {
+                        // ExA1 - SKNP Vx
+                        if !interconnect.input.key_pressed(self.v[x]) {
+                            self.pc += INSTRUCTION_SIZE;
+                        }
+                    }
+                    _ => panic!("Unrecognized e variant {:x}({:x})", instr, kk),
+                }
+            }
             0xf => {
                 match kk {
                     0x07 => {
                         // Fx07 - LD Vx, DT
                         self.v[x] = self.delay_timer;
                     }
+                    0x0a => {
+                        // Fx0A - LD Vx, K
+                        self.v[x] = interconnect.input.wait_for_keypress();
+                    }
                     0x15 => {
                         // Fx15 - LD DT, Vx
                         let val = self.v[x];
                         self.delay_timer = val;
+                    }
+                    0x18 => {
+                        // Fx18 - LD ST, Vx
+                        self.sound_timer = self.v[x];
+                    }
+                    0x1E => {
+                        // Fx1E - ADD I, Vx
+                        self.i += self.v[x] as u16;
                     }
                     0x29 => {
                         // Fx29 - LD F, Vx
@@ -135,6 +250,12 @@ impl Cpu {
                         interconnect.mem.write_byte(self.i, val / 100);
                         interconnect.mem.write_byte(self.i + 1, (val % 100) / 10);
                         interconnect.mem.write_byte(self.i + 2, val % 10);
+                    }
+                    0x55 => {
+                        // Fx55 - LD [I], Vx
+                        for i in 0..(x + 1) {
+                            interconnect.mem.write_byte(self.i + i as u16, self.v[i]);
+                        }
                     }
                     0x65 => {
                         // Fx65 - LD Vx, [I]

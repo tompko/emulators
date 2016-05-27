@@ -1,6 +1,7 @@
+extern crate byteorder;
 #[macro_use]
 extern crate clap;
-extern crate byteorder;
+extern crate rand;
 extern crate sdl2;
 extern crate time;
 
