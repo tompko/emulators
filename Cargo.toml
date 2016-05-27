@@ -7,3 +7,4 @@ authors = ["tompko <tompko@gmail.com>"]
 clap = "2"
 byteorder = "0.5"
 sdl2 = "0.14"
+time = "0.1"

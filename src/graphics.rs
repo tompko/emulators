@@ -45,7 +45,7 @@ impl Graphics {
                 let index = (dy * SCREEN_WIDTH) + dx;
                 let val = (s >> j) & 0x1;
 
-                collision != self.screen[index];
+                collision |= self.screen[index];
                 self.screen[index] ^= val;
             }
         }

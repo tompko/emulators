@@ -2,6 +2,7 @@
 extern crate clap;
 extern crate byteorder;
 extern crate sdl2;
+extern crate time;
 
 use std::fs::File;
 use std::io::Read;
@@ -10,6 +11,7 @@ use vm::VM;
 
 mod cpu;
 mod graphics;
+mod input;
 mod interconnect;
 mod memory;
 mod vm;

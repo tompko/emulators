@@ -1,3 +1,4 @@
+use super::time::{Duration, SteadyTime};
 use super::interconnect::Interconnect;
 use super::memory::END_RESERVED;
 
@@ -11,6 +12,8 @@ pub struct Cpu {
 
     delay_timer: u8,
     sound_timer: u8,
+
+    delay_start: SteadyTime,
 }
 
 impl Cpu {
@@ -22,6 +25,7 @@ impl Cpu {
             stack: Vec::new(),
             delay_timer: 0,
             sound_timer: 0,
+            delay_start: SteadyTime::now(),
         }
     }
 
@@ -31,7 +35,14 @@ impl Cpu {
 
             self.execute_instruction(instr, interconnect);
 
+            self.handle_timers();
+
             interconnect.graphics.render();
+            interconnect.input.handle_input();
+
+            if interconnect.input.quit {
+                break;
+            }
         }
     }
 
@@ -141,5 +152,16 @@ impl Cpu {
         if !jmp {
             self.pc += INSTRUCTION_SIZE;
         }
+    }
+
+    fn handle_timers(&mut self) {
+        if self.delay_timer > 0 {
+            let now = SteadyTime::now();
+            if now - self.delay_start > Duration::milliseconds(16) {
+                self.delay_start = now;
+                self.delay_timer -= 1;
+            }
+        }
+
     }
 }

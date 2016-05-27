@@ -1,10 +1,13 @@
 use super::sdl2;
 use super::memory::Memory;
 use super::graphics::Graphics;
+use super::input::Input;
+
 
 pub struct Interconnect {
     pub mem: Memory,
     pub graphics: Graphics,
+    pub input: Input,
 }
 
 impl Interconnect {
@@ -14,6 +17,7 @@ impl Interconnect {
         return Interconnect{
             mem: Memory::new(),
             graphics: Graphics::new(&context),
+            input: Input::new(&context),
         }
     }
 
