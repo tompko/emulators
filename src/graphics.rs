@@ -38,17 +38,24 @@ impl Graphics {
 
     pub fn draw(&mut self, x: usize, y: usize, sprite: Vec<u8>) -> u8 {
         let mut collision = 0;
+        let mut pixels = vec![0;8];
+
         for (i, s) in sprite.iter().enumerate() {
             let dy = (y + i) % SCREEN_HEIGHT;
+
+            for j in 0..8 {
+                pixels[7-j] = (s >> j) & 0x1;
+            }
+
             for j in 0..8 {
                 let dx = (x + j) % SCREEN_WIDTH;
                 let index = (dy * SCREEN_WIDTH) + dx;
-                let val = (s >> j) & 0x1;
 
                 collision |= self.screen[index];
-                self.screen[index] ^= val;
+                self.screen[index] ^= pixels[j];
             }
         }
+
         return collision;
     }
 

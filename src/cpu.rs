@@ -192,12 +192,14 @@ impl Cpu {
             0xd => {
                 // Dxyn - DRW Vx, Vy, nibble
                 let mut sprite = vec![0; n as usize];
+                let vx = self.v[x] as usize;
+                let vy = self.v[y] as usize;
 
                 for i in 0..n {
                     sprite[i] = interconnect.mem.read_byte(self.i + i as u16);
                 }
 
-                self.v[0xf] = interconnect.graphics.draw(x, y, sprite);
+                self.v[0xf] = interconnect.graphics.draw(vx, vy, sprite);
             }
             0xe => {
                 match kk {
