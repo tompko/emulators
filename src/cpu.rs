@@ -226,7 +226,10 @@ impl Cpu {
                     }
                     0x0a => {
                         // Fx0A - LD Vx, K
-                        self.v[x] = interconnect.input.wait_for_keypress();
+                        match interconnect.input.any_key_pressed() {
+                            Some(index) => self.v[x] = index,
+                            None => jmp = true,
+                        }
                     }
                     0x15 => {
                         // Fx15 - LD DT, Vx
