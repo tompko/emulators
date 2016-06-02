@@ -1,3 +1,5 @@
+#![deny(trivial_casts, trivial_numeric_casts)]
+
 extern crate byteorder;
 #[macro_use]
 extern crate clap;
@@ -10,6 +12,7 @@ use std::io::Read;
 use clap::{Arg, App};
 use vm::VM;
 
+mod cart;
 mod cpu;
 mod graphics;
 mod input;
@@ -29,15 +32,14 @@ fn main() {
                         .get_matches();
 
     let input_file = matches.value_of("INPUT").unwrap();
-    let rom = read_rom(input_file);
+    let cart_rom = read_rom(input_file);
 
-    let mut vm = VM::new();
+    let mut vm = VM::new(cart_rom);
 
-    vm.load_rom(rom);
     vm.run();
 }
 
-fn read_rom(filename: &str) -> Vec<u8> {
+fn read_rom(filename: &str) -> Box<[u8]> {
     let mut buffer = Vec::new();
 
     match File::open(filename) {
@@ -51,5 +53,5 @@ fn read_rom(filename: &str) -> Vec<u8> {
     }
 
 
-    return buffer
+    return buffer.into_boxed_slice();
 }

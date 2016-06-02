@@ -7,17 +7,13 @@ pub struct VM {
 }
 
 impl VM {
-    pub fn new() -> VM {
-        let inter = Interconnect::new();
+    pub fn new(cart_rom: Box<[u8]>) -> VM {
+        let inter = Interconnect::new(cart_rom);
         let cpu = Cpu::new();
         VM{
             inter: inter,
             cpu: cpu,
         }
-    }
-
-    pub fn load_rom(&mut self, rom: Vec<u8>) {
-        self.inter.load_rom(rom);
     }
 
     pub fn run(&mut self) {
