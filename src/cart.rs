@@ -1,8 +1,10 @@
 const PRG_PAGE_SIZE: usize = 16*1024;
+const CHR_PAGE_SIZE: usize = 8*1024;
 
 pub struct Cart {
     cart_rom: Box<[u8]>,
     prg_rom_offsets: Vec<(usize, usize)>,
+    chr_rom_offsets: Vec<(usize, usize)>,
 }
 
 impl Cart {
@@ -18,6 +20,7 @@ impl Cart {
         let mut c = Cart{
             cart_rom: rom,
             prg_rom_offsets: Vec::new(),
+            chr_rom_offsets: Vec::new(),
         };
 
         let mut start = 17;
@@ -26,8 +29,8 @@ impl Cart {
             start = start + PRG_PAGE_SIZE;
         }
 
-        if chr != 0 {
-            return Err("Non-zero number of CHR pages");
+        for i in 0..chr {
+            c.chr_rom_offsets.push((start, start+CHR_PAGE_SIZE));
         }
 
         if mapper_lo != 0 || mapper_hi != 0 {
