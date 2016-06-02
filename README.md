@@ -1,4 +1,4 @@
-# chip8
+# nesRS
 A NES emulator in rust
 
 ## License
