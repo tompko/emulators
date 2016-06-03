@@ -1,8 +1,9 @@
 #![deny(trivial_casts, trivial_numeric_casts)]
 
 extern crate byteorder;
-#[macro_use]
-extern crate clap;
+#[macro_use] extern crate clap;
+#[macro_use] extern crate enum_primitive;
+extern crate num;
 extern crate rand;
 extern crate sdl2;
 extern crate time;
@@ -16,8 +17,10 @@ mod cart;
 mod cpu;
 mod graphics;
 mod input;
+mod instruction;
 mod interconnect;
 mod memory;
+mod mem_map;
 mod vm;
 
 fn main() {

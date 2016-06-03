@@ -5,6 +5,9 @@ pub struct Cart {
     cart_rom: Box<[u8]>,
     prg_rom_offsets: Vec<(usize, usize)>,
     chr_rom_offsets: Vec<(usize, usize)>,
+    // We can have two prg rom pages mapped at any time
+    // or the same one twice if we have only 1
+    active_prg_pages: [usize; 2],
 }
 
 impl Cart {
@@ -21,6 +24,7 @@ impl Cart {
             cart_rom: rom,
             prg_rom_offsets: Vec::new(),
             chr_rom_offsets: Vec::new(),
+            active_prg_pages: [0, 0],
         };
 
         let mut start = 17;
@@ -38,5 +42,11 @@ impl Cart {
         }
 
         return Ok(c);
+    }
+
+    pub fn read_prg_rom(&self, pgr_page: usize, offset: u16) -> u8 {
+        let page_index = self.active_prg_pages[pgr_page];
+        let base_offset = self.prg_rom_offsets[page_index];
+        return self.cart_rom[base_offset.0 + offset as usize];
     }
 }
