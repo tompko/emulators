@@ -41,4 +41,11 @@ impl Interconnect {
             Addr::PrgRom2(offset) => self.cart.read_prg_word(1, offset),
         }
     }
+
+    pub fn write_byte(&mut self, addr: u16, val: u8) {
+        match map_addr(addr) {
+            Addr::Ram(offset) => self.cpu_ram.write_byte(offset, val),
+            _ => panic!("Write at unrecognised physical address: {:x}", addr),
+        }
+    }
 }
