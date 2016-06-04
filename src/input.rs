@@ -10,7 +10,7 @@ pub struct Input {
 
 impl Input {
     pub fn new(context: &sdl2::Sdl) -> Input {
-        return Input{
+        Input{
             event_pump: context.event_pump().unwrap(),
             quit: false,
         }

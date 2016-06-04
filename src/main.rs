@@ -1,3 +1,5 @@
+#![feature(plugin)]
+#![plugin(clippy)]
 #![deny(trivial_casts, trivial_numeric_casts)]
 
 extern crate byteorder;
@@ -21,6 +23,7 @@ mod instruction;
 mod interconnect;
 mod memory;
 mod mem_map;
+mod reg_status;
 mod vm;
 
 fn main() {
@@ -56,5 +59,5 @@ fn read_rom(filename: &str) -> Box<[u8]> {
     }
 
 
-    return buffer.into_boxed_slice();
+    buffer.into_boxed_slice()
 }

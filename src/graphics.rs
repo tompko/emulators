@@ -9,7 +9,6 @@ pub struct Graphics {
 
 impl Graphics {
     pub fn new(context: &sdl2::Sdl) -> Graphics {
-        return Graphics{
-        }
+        Graphics{}
     }
 }

@@ -7,7 +7,7 @@ use super::mem_map::*;
 
 
 pub struct Interconnect {
-    pub mem: Memory,
+    pub cpu_ram: Memory,
     pub graphics: Graphics,
     pub input: Input,
     pub cart: Cart,
@@ -18,8 +18,8 @@ impl Interconnect {
         let context = sdl2::init().unwrap();
 
         let cart = Cart::new(cart_rom).unwrap();
-        return Interconnect{
-            mem: Memory::new(),
+         Interconnect{
+            cpu_ram: Memory::new(),
             graphics: Graphics::new(&context),
             input: Input::new(&context),
             cart: cart,
@@ -28,8 +28,17 @@ impl Interconnect {
 
     pub fn read_byte(&self, addr: u16) -> u8 {
         match map_addr(addr) {
-            Addr::PrgRom1(offset) => self.cart.read_prg_rom(0, offset),
-            Addr::PrgRom2(offset) => self.cart.read_prg_rom(1, offset),
+            Addr::Ram(offset) => self.cpu_ram.read_byte(offset),
+            Addr::PrgRom1(offset) => self.cart.read_prg_byte(0, offset),
+            Addr::PrgRom2(offset) => self.cart.read_prg_byte(1, offset),
+        }
+    }
+
+    pub fn read_word(&self, addr: u16) -> u16 {
+        match map_addr(addr) {
+            Addr::Ram(offset) => self.cpu_ram.read_word(offset),
+            Addr::PrgRom1(offset) => self.cart.read_prg_word(0, offset),
+            Addr::PrgRom2(offset) => self.cart.read_prg_word(1, offset),
         }
     }
 }

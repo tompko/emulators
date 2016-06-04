@@ -9,7 +9,7 @@ pub struct VM {
 impl VM {
     pub fn new(cart_rom: Box<[u8]>) -> VM {
         let inter = Interconnect::new(cart_rom);
-        let cpu = Cpu::new();
+        let cpu = Cpu::default();
         VM{
             inter: inter,
             cpu: cpu,
