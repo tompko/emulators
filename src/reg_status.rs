@@ -1,5 +1,3 @@
-use std::fmt;
-
 #[derive(Debug, Clone)]
 pub struct RegStatus {
     pub carry: bool,

@@ -30,7 +30,7 @@ impl fmt::Debug for Cpu {
         let rs: u8 = self.reg_status.clone().into();
         write!(
             f,
-            "A: {:X} X: {:X} Y: {:X} P: {:X} SP: {:X}",
+            "A: {:02X} X: {:02X} Y: {:02X} P: {:02X} SP: {:02X}",
             self.reg_a,
             self.reg_x,
             self.reg_y,
@@ -55,32 +55,55 @@ impl Cpu {
         println!("{:X}  {:?} {:?}", self.reg_pc, instr, self);
         self.reg_pc += instr.length();
 
-        match instr.opcode() {
-            &Opcode::Jsr => {
+        match *instr.opcode() {
+            Opcode::Clc => {
+                self.reg_status.carry = false;
+            }
+            Opcode::Jsr => {
                 let pc = self.reg_pc;
                 self.push_word(interconnect, pc);
                 self.reg_pc = instr.addr();
             }
-            &Opcode::Sec => {
+            Opcode::Sec => {
                 self.reg_status.carry = true;
             }
-            &Opcode::Jmp => {
+            Opcode::Jmp => {
                 self.reg_pc = instr.addr();
             },
-            &Opcode::Stx => {
+            Opcode::Stx => {
                 interconnect.write_byte(instr.addr(), self.reg_x);
             }
-            &Opcode::Ldx => {
+            Opcode::Bcc => {
+                if !self.reg_status.carry {
+                    self.reg_pc += instr.addr();
+                }
+            }
+            Opcode::Ldx => {
                 self.reg_x = instr.imm();
                 self.reg_status.zero = self.reg_x == 0;
                 self.reg_status.negative = (self.reg_x & (1 << 7)) != 0;
             }
-            &Opcode::Bcs => {
+            Opcode::Lda => {
+                self.reg_a = instr.imm();
+                self.reg_status.zero = self.reg_a == 0;
+                self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            }
+            Opcode::Bcs => {
                 if self.reg_status.carry {
                     self.reg_pc += instr.addr();
                 }
             }
-            &Opcode::Nop => {},
+            Opcode::Bne => {
+                if !self.reg_status.zero {
+                    self.reg_pc += instr.addr();
+                }
+            }
+            Opcode::Nop => {},
+            Opcode::Beq => {
+                if self.reg_status.zero {
+                    self.reg_pc += instr.addr();
+                }
+            }
         }
     }
 
