@@ -1,5 +1,3 @@
-#![feature(plugin)]
-#![plugin(clippy)]
 #![deny(trivial_casts, trivial_numeric_casts)]
 
 extern crate byteorder;

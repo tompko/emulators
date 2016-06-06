@@ -5,7 +5,6 @@ authors = ["tompko <tompko@gmail.com>"]
 
 [dependencies]
 clap = "2"
-clippy = "*"
 byteorder = "0.5"
 enum_primitive = "0.1"
 num = "0.1"

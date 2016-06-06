@@ -56,52 +56,71 @@ impl Cpu {
         self.reg_pc += instr.length();
 
         match *instr.opcode() {
+            Opcode::Bit => {
+                let mask = instr.imm(self.reg_pc, self.reg_x, self.reg_y);
+                let result = self.reg_a & mask;
+
+                self.reg_status.zero = result == 0;
+                self.reg_status.overflow = (result & (1 << 6)) != 0;
+                self.reg_status.negative = (result & (1 << 7)) != 0;
+            }
             Opcode::Clc => {
                 self.reg_status.carry = false;
             }
             Opcode::Jsr => {
                 let pc = self.reg_pc;
+                let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
                 self.push_word(interconnect, pc);
-                self.reg_pc = instr.addr();
+                self.reg_pc = addr;
             }
             Opcode::Sec => {
                 self.reg_status.carry = true;
             }
             Opcode::Jmp => {
-                self.reg_pc = instr.addr();
+                let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
+                self.reg_pc = addr;
             },
+            Opcode::Sta => {
+                let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
+                interconnect.write_byte(addr, self.reg_a);
+            }
             Opcode::Stx => {
-                interconnect.write_byte(instr.addr(), self.reg_x);
+                let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
+                interconnect.write_byte(addr, self.reg_x);
             }
             Opcode::Bcc => {
                 if !self.reg_status.carry {
-                    self.reg_pc += instr.addr();
+                    let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
+                    self.reg_pc += addr;
                 }
             }
             Opcode::Ldx => {
-                self.reg_x = instr.imm();
+                self.reg_x = instr.imm(self.reg_pc, self.reg_x, self.reg_y);
                 self.reg_status.zero = self.reg_x == 0;
                 self.reg_status.negative = (self.reg_x & (1 << 7)) != 0;
             }
             Opcode::Lda => {
-                self.reg_a = instr.imm();
+                self.reg_a = instr.imm(self.reg_pc, self.reg_x, self.reg_y);
                 self.reg_status.zero = self.reg_a == 0;
                 self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
             }
             Opcode::Bcs => {
                 if self.reg_status.carry {
-                    self.reg_pc += instr.addr();
+                let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
+                    self.reg_pc += addr;
                 }
             }
             Opcode::Bne => {
                 if !self.reg_status.zero {
-                    self.reg_pc += instr.addr();
+                let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
+                    self.reg_pc += addr;
                 }
             }
             Opcode::Nop => {},
             Opcode::Beq => {
                 if self.reg_status.zero {
-                    self.reg_pc += instr.addr();
+                    let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
+                    self.reg_pc += addr;
                 }
             }
         }
