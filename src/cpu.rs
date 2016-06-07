@@ -58,6 +58,7 @@ impl Cpu {
     fn execute_cycle(&mut self, interconnect: &mut Interconnect) {
         self.time += 1;
         if self.time == 1 {
+            // T1 - All instructions
             self.instr_pc = self.reg_pc;
             self.opcode = interconnect.read_byte(self.reg_pc);
             self.reg_pc += 1;
@@ -65,17 +66,49 @@ impl Cpu {
         }
 
         if self.opcode == 0x4c && self.time == 2 {
+            // T2 - JMP
             self.fetch = interconnect.read_byte(self.reg_pc);
             self.reg_pc += 1;
             return;
         }
         if self.opcode == 0x4c && self.time == 3 {
+            // T3 - JMP
             let pch = interconnect.read_byte(self.reg_pc);
             self.reg_pc = ((pch as u16) << 8) | (self.fetch as u16);
-            println!("{:04X}  {:02X} {:02X} {:02X}  JMP ${:04X}", self.instr_pc, self.opcode, self.fetch, pch, self.reg_pc);
+            println!("{:04X}  {:02X} {:02X} {:02X}  JMP ${:04X}     {:?}", self.instr_pc, self.opcode, self.fetch, pch, self.reg_pc, self);
             self.time = 0;
             return;
         }
+
+        if self.opcode == 0xa2 && self.time == 2 {
+            // T2 - LDX Immediate
+            let value = interconnect.read_byte(self.reg_pc);
+            self.reg_x = value;
+            self.reg_pc += 1;
+            if value == 0 {
+                self.reg_status.zero = true;
+            }
+            if value & (1 << 7) != 0 {
+                self.reg_status.negative = true;
+            }
+            println!("{:04X}  {:02X} {:02X}     LDX #${:02X}      {:?}", self.instr_pc, self.opcode, self.reg_x, self.reg_x, self);
+            self.time = 0;
+            return;
+        }
+
+        if self.opcode == 0x86 && self.time == 2 {
+            // T2 - STX Zero Page
+            self.fetch = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            return;
+        }
+        if self.opcode == 0x86 && self.time == 3 {
+            interconnect.write_byte(self.fetch as u16, self.reg_x);
+            println!("{:04X}  {:02X} {:02X}     STX ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_x, self);
+            self.time = 0;
+            return;
+        }
+
 
         panic!("Unmatched opcode/time pair {:x}/{}", self.opcode, self.time);
     }
