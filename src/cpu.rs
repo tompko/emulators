@@ -1,6 +1,5 @@
 use std::fmt;
 use super::interconnect::Interconnect;
-use super::instruction::{Instruction, Opcode};
 use super::reg_status::RegStatus;
 
 pub struct Cpu {
@@ -10,6 +9,11 @@ pub struct Cpu {
     reg_pc: u16,
     reg_s: u8,
     reg_status: RegStatus,
+
+    instr_pc: u16,
+    opcode: u8,
+    time: u8,  // cycle of opcode we're executing next
+    fetch: u8, // in the real 6502 this would sit on the data bus
 }
 
 impl Default for Cpu {
@@ -21,6 +25,11 @@ impl Default for Cpu {
             reg_pc: 0xc000, // TODO - this should possibly start at the reset vector
             reg_s: 0xfd, // TODO - this should start at ff, probably wrong because of the reset
             reg_status: 0x24.into(),
+
+            instr_pc: 0,
+            opcode: 0,
+            time: 0,
+            fetch: 0,
         }
     }
 }
@@ -42,88 +51,33 @@ impl fmt::Debug for Cpu {
 impl Cpu {
     pub fn run(&mut self, interconnect: &mut Interconnect) {
         loop {
-            let instr = self.read_instruction(interconnect);
-            self.execute_instruction(interconnect, &instr);
+            self.execute_cycle(interconnect);
         }
     }
 
-    fn read_instruction(&self, interconnect: &mut Interconnect) -> Instruction {
-        Instruction::new(interconnect, self.reg_pc)
-    }
-
-    fn execute_instruction(&mut self, interconnect: &mut Interconnect, instr: &Instruction) {
-        println!("{:X}  {:?} {:?}", self.reg_pc, instr, self);
-        self.reg_pc += instr.length();
-
-        match *instr.opcode() {
-            Opcode::Bit => {
-                let mask = instr.imm(self.reg_pc, self.reg_x, self.reg_y);
-                let result = self.reg_a & mask;
-
-                self.reg_status.zero = result == 0;
-                self.reg_status.overflow = (result & (1 << 6)) != 0;
-                self.reg_status.negative = (result & (1 << 7)) != 0;
-            }
-            Opcode::Clc => {
-                self.reg_status.carry = false;
-            }
-            Opcode::Jsr => {
-                let pc = self.reg_pc;
-                let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
-                self.push_word(interconnect, pc);
-                self.reg_pc = addr;
-            }
-            Opcode::Sec => {
-                self.reg_status.carry = true;
-            }
-            Opcode::Jmp => {
-                let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
-                self.reg_pc = addr;
-            },
-            Opcode::Sta => {
-                let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
-                interconnect.write_byte(addr, self.reg_a);
-            }
-            Opcode::Stx => {
-                let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
-                interconnect.write_byte(addr, self.reg_x);
-            }
-            Opcode::Bcc => {
-                if !self.reg_status.carry {
-                    let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
-                    self.reg_pc += addr;
-                }
-            }
-            Opcode::Ldx => {
-                self.reg_x = instr.imm(self.reg_pc, self.reg_x, self.reg_y);
-                self.reg_status.zero = self.reg_x == 0;
-                self.reg_status.negative = (self.reg_x & (1 << 7)) != 0;
-            }
-            Opcode::Lda => {
-                self.reg_a = instr.imm(self.reg_pc, self.reg_x, self.reg_y);
-                self.reg_status.zero = self.reg_a == 0;
-                self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
-            }
-            Opcode::Bcs => {
-                if self.reg_status.carry {
-                let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
-                    self.reg_pc += addr;
-                }
-            }
-            Opcode::Bne => {
-                if !self.reg_status.zero {
-                let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
-                    self.reg_pc += addr;
-                }
-            }
-            Opcode::Nop => {},
-            Opcode::Beq => {
-                if self.reg_status.zero {
-                    let addr = instr.addr(self.reg_pc, self.reg_x, self.reg_y);
-                    self.reg_pc += addr;
-                }
-            }
+    fn execute_cycle(&mut self, interconnect: &mut Interconnect) {
+        self.time += 1;
+        if self.time == 1 {
+            self.instr_pc = self.reg_pc;
+            self.opcode = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            return
         }
+
+        if self.opcode == 0x4c && self.time == 2 {
+            self.fetch = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            return;
+        }
+        if self.opcode == 0x4c && self.time == 3 {
+            let pch = interconnect.read_byte(self.reg_pc);
+            self.reg_pc = ((pch as u16) << 8) | (self.fetch as u16);
+            println!("{:04X}  {:02X} {:02X} {:02X}  JMP ${:04X}", self.instr_pc, self.opcode, self.fetch, pch, self.reg_pc);
+            self.time = 0;
+            return;
+        }
+
+        panic!("Unmatched opcode/time pair {:x}/{}", self.opcode, self.time);
     }
 
     fn push_word(&mut self, interconnect: &mut Interconnect, val: u16) {

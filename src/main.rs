@@ -17,7 +17,6 @@ mod cart;
 mod cpu;
 mod graphics;
 mod input;
-mod instruction;
 mod interconnect;
 mod memory;
 mod mem_map;
