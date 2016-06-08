@@ -109,13 +109,47 @@ impl Cpu {
             return;
         }
 
+        if self.opcode == 0x20 && self.time == 2{
+            self.fetch = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            return;
+        }
+        if self.opcode == 0x20 && self.time == 3{
+            // internal operation (predecrement S?)
+            return;
+        }
+        if self.opcode == 0x20 && self.time == 4{
+            let byte = (self.reg_pc >> 8) as u8;
+            self.push_byte(interconnect, byte);
+            return;
+        }
+        if self.opcode == 0x20 && self.time == 5{
+            let byte = self.reg_pc as u8;
+            self.push_byte(interconnect, byte);
+            return;
+        }
+        if self.opcode == 0x20 && self.time == 6{
+            let pch = interconnect.read_byte(self.reg_pc);
+            self.reg_pc = ((pch as u16) << 8) | (self.fetch as u16);
+            println!("{:04X}  {:02X} {:02X} {:02X}   JSR ${:04X}    {:?}", self.instr_pc, self.opcode, self.fetch, pch, self.reg_pc, self);
+            self.time = 0;
+            return;
+        }
+
+        if self.opcode == 0xea && self.time == 2 {
+            println!("{:04X}  {:02X}         NOP          {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+
+        if self.opcode == 0x38 && self.time == 2 {
+            self.reg_status.carry = true;
+            println!("{:04X}  {:02X}         SEC          {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
 
         panic!("Unmatched opcode/time pair {:x}/{}", self.opcode, self.time);
-    }
-
-    fn push_word(&mut self, interconnect: &mut Interconnect, val: u16) {
-        self.push_byte(interconnect, (val >> 8) as u8);
-        self.push_byte(interconnect, val as u8);
     }
 
     fn push_byte(&mut self, interconnect: &mut Interconnect, val: u8) {
