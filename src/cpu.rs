@@ -107,8 +107,9 @@ impl Cpu {
             return;
         }
 
-        if self.opcode == 0x86 && self.time == 2 {
-            // T2 - STX Zero Page
+        if (self.opcode == 0x86 || self.opcode == 0x85 || self.opcode == 0x24) && self.time == 2 {
+            // TODO - All Zero Page instructions should share this
+            // T2 - STX/STA/BIT Zero Page
             self.fetch = interconnect.read_byte(self.reg_pc);
             self.reg_pc += 1;
             return;
@@ -116,6 +117,24 @@ impl Cpu {
         if self.opcode == 0x86 && self.time == 3 {
             interconnect.write_byte(self.fetch as u16, self.reg_x);
             println!("{:04X}  {:02X} {:02X}      STX ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_x, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0x85 && self.time == 3 {
+            interconnect.write_byte(self.fetch as u16, self.reg_a);
+            println!("{:04X}  {:02X} {:02X}      STA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0x24 && self.time == 3 {
+            let mask = interconnect.read_byte(self.fetch as u16);
+            let value = self.reg_a & mask;
+
+            self.reg_status.zero = value == 0;
+            self.reg_status.overflow = (mask & (1 << 6)) != 0;
+            self.reg_status.negative = (mask & (1 << 7)) != 0;
+
+            println!("{:04X}  {:02X} {:02X}      BIT ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, mask, self);
             self.time = 0;
             return;
         }
@@ -211,8 +230,11 @@ impl Cpu {
     }
     fn take_branch(&self, opcode: u8) -> bool {
         match opcode {
-            0xb0 => self.reg_status.carry,
+            0x10 => !self.reg_status.negative,
+            0x50 => !self.reg_status.overflow,
+            0x70 => self.reg_status.overflow,
             0x90 => !self.reg_status.carry,
+            0xb0 => self.reg_status.carry,
             0xd0 => !self.reg_status.zero,
             0xf0 => self.reg_status.zero,
             _ => panic!("Unrecognised branch instruction {:02X}", opcode),
@@ -221,8 +243,11 @@ impl Cpu {
 
     fn opcode_name(&self, opcode: u8) -> &'static str {
         match opcode {
-            0xb0 => "BCS",
+            0x10 => "BPL",
+            0x50 => "BVC",
+            0x70 => "BVS",
             0x90 => "BCC",
+            0xb0 => "BCS",
             0xd0 => "BNE",
             0xf0 => "BEQ",
             _ => panic!("Unrecognised instruction {:02X}", opcode),
