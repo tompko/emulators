@@ -107,6 +107,72 @@ impl Cpu {
             return;
         }
 
+        // PHP
+        if self.opcode == 0x08 && self.time == 2 {
+            // read the next instruction and discard it
+            return;
+        }
+        if self.opcode == 0x08 && self.time == 3 {
+            let mut reg_status = self.reg_status.clone();
+            // PHP  always pushes the break_command flag as 1
+            reg_status.break_command = true;
+            let val: u8 = reg_status.into();
+            self.stack_push(interconnect, val);
+            println!("{:04X}  {:02X}         PHP           {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // PHA
+        if self.opcode == 0x48 && self.time == 2 {
+            // read the next instruction and discard it
+            return;
+        }
+        if self.opcode == 0x48 && self.time == 3 {
+            let val = self.reg_a;
+            self.stack_push(interconnect, val);
+            println!("{:04X}  {:02X}         PHA           {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+
+        // PLA
+        if self.opcode == 0x68 && self.time == 2 {
+            // read the next instruction and discard
+            return;
+        }
+        if self.opcode == 0x68 && self.time == 3 {
+            self.reg_s += 1;
+            return;
+        }
+        if self.opcode == 0x68 && self.time == 4 {
+            let val = self.stack_peek(interconnect);
+            self.reg_a = val;
+
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            println!("{:04X}  {:02X}         PLA           {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // PLP
+        if self.opcode == 0x28 && self.time == 2 {
+            // read the next instruction and discard
+            return;
+        }
+        if self.opcode == 0x28 && self.time == 3 {
+            self.reg_s += 1;
+            return;
+        }
+        if self.opcode == 0x28 && self.time == 4 {
+            let val = self.stack_peek(interconnect);
+            // PLP never sets the break_command flag
+            let val = val & 0xef;
+            self.reg_status = val.into();
+            println!("{:04X}  {:02X}         PLP           {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+
         if (self.opcode == 0x86 || self.opcode == 0x85 || self.opcode == 0x24) && self.time == 2 {
             // TODO - All Zero Page instructions should share this
             // T2 - STX/STA/BIT Zero Page
@@ -151,18 +217,45 @@ impl Cpu {
         }
         if self.opcode == 0x20 && self.time == 4{
             let byte = (self.reg_pc >> 8) as u8;
-            self.push_byte(interconnect, byte);
+            self.stack_push(interconnect, byte);
             return;
         }
         if self.opcode == 0x20 && self.time == 5{
             let byte = self.reg_pc as u8;
-            self.push_byte(interconnect, byte);
+            self.stack_push(interconnect, byte);
             return;
         }
         if self.opcode == 0x20 && self.time == 6{
             let pch = interconnect.read_byte(self.reg_pc);
             self.reg_pc = ((pch as u16) << 8) | (self.fetch as u16);
             println!("{:04X}  {:02X} {:02X} {:02X}   JSR ${:04X}    {:?}", self.instr_pc, self.opcode, self.fetch, pch, self.reg_pc, self);
+            self.time = 0;
+            return;
+        }
+
+        // RTS
+        if self.opcode == 0x60 && self.time == 2 {
+            // Read next instruction and discard
+            return;
+        }
+        if self.opcode == 0x60 && self.time == 3 {
+            self.reg_s += 1;
+            return;
+        }
+        if self.opcode == 0x60 && self.time == 4 {
+            let pcl = self.stack_peek(interconnect) as u16;
+            self.reg_s += 1;
+            self.reg_pc = (self.reg_pc & 0xff00) | pcl;
+            return;
+        }
+        if self.opcode == 0x60 && self.time == 5 {
+            let pch = self.stack_peek(interconnect) as u16;
+            self.reg_pc = (pch << 8) | (self.reg_pc & 0xff);
+            return;
+        }
+        if self.opcode == 0x60 && self.time == 6 {
+            self.reg_pc += 1;
+            println!("{:04X}  {:02X}         RTS          {:?}", self.instr_pc, self.opcode, self);
             self.time = 0;
             return;
         }
@@ -183,7 +276,44 @@ impl Cpu {
         // CLC
         if self.opcode == 0x18 && self.time == 2 {
             self.reg_status.carry = false;
-            println!("{:04X}  {:02X}         SEC          {:?}", self.instr_pc, self.opcode, self);
+            println!("{:04X}  {:02X}         CLC          {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // CLV
+        if self.opcode == 0xb8 && self.time == 2 {
+            self.reg_status.overflow = false;
+            println!("{:04X}  {:02X}         CLV          {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // SEI
+        if self.opcode == 0x78 && self.time == 2 {
+            self.reg_status.interrupt_disable = true;
+            println!("{:04X}  {:02X}         SEI          {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // CLI
+        if self.opcode == 0x58 && self.time == 2 {
+            self.reg_status.interrupt_disable = false;
+            println!("{:04X}  {:02X}         CLI          {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // SED
+        if self.opcode == 0xf8 && self.time == 2 {
+            // TODO - I think this is a NOP on the NES which always has decimal disabled
+            self.reg_status.decimal = true;
+            println!("{:04X}  {:02X}         SED          {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // CLD
+        if self.opcode == 0xD8 && self.time == 2 {
+            // TODO - I think this is a NOP on the NES which always has decimal disabled
+            self.reg_status.decimal = false;
+            println!("{:04X}  {:02X}         CLD          {:?}", self.instr_pc, self.opcode, self);
             self.time = 0;
             return;
         }
@@ -217,12 +347,86 @@ impl Cpu {
         if self.is_branch(self.opcode) && self.time == 5 {
         }
 
+        // ORA
+        if self.opcode == 0x09 && self.time == 2 {
+            let mask = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            self.reg_a |= mask;
+
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X}      ORA #${:02X}      {:?}", self.instr_pc, self.opcode, mask, mask, self);
+            self.time = 0;
+            return;
+        }
+        // AND
+        if self.opcode == 0x29 && self.time == 2 {
+            let mask = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            self.reg_a &= mask;
+
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X}      AND #${:02X}      {:?}", self.instr_pc, self.opcode, mask, mask, self);
+            self.time = 0;
+            return;
+        }
+        // EOR
+        if self.opcode == 0x49 && self.time == 2 {
+            let mask = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            self.reg_a ^= mask;
+
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X}      EOR #${:02X}      {:?}", self.instr_pc, self.opcode, mask, mask, self);
+            self.time = 0;
+            return;
+        }
+        // ADC
+        if self.opcode == 0x69 && self.time == 2 {
+            let val = interconnect.read_byte(self.reg_pc);
+            let acc = self.reg_a;
+            let carry = if self.reg_status.carry { 1 } else { 0 };
+            self.reg_pc += 1;
+
+            let (int, carry1) = val.overflowing_add(acc);
+            let (fin, carry2) = int.overflowing_add(carry);
+
+            self.reg_a = fin;
+
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            self.reg_status.carry = carry1 || carry2;
+            self.reg_status.overflow = !(acc ^ val) & (acc ^ fin) & 0x80 != 0;
+            println!("{:04X}  {:02X} {:02X}      ADC #${:02X}      {:?}", self.instr_pc, self.opcode, val, val, self);
+            self.time = 0;
+            return;
+        }
+
+        // CMP
+        if self.opcode == 0xc9 && self.time == 2 {
+            let cmp = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            let res = self.reg_a.wrapping_sub(cmp);
+
+            self.reg_status.carry = self.reg_a >= cmp;
+            self.reg_status.zero = self.reg_a == cmp;
+            self.reg_status.negative = (res & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X}      CMP #${:02X}      {:?}", self.instr_pc, self.opcode, cmp, cmp, self);
+            self.time = 0;
+            return;
+        }
         panic!("Unmatched opcode/time pair {:x}/{}", self.opcode, self.time);
     }
 
-    fn push_byte(&mut self, interconnect: &mut Interconnect, val: u8) {
+    fn stack_push(&mut self, interconnect: &mut Interconnect, val: u8) {
         interconnect.write_byte(self.reg_s as u16, val);
         self.reg_s -= 1;
+    }
+
+    fn stack_peek(&self, interconnect: &Interconnect) -> u8 {
+        interconnect.read_byte(self.reg_s as u16)
     }
 
     fn is_branch(&self, opcode: u8) -> bool {
@@ -231,6 +435,7 @@ impl Cpu {
     fn take_branch(&self, opcode: u8) -> bool {
         match opcode {
             0x10 => !self.reg_status.negative,
+            0x30 => self.reg_status.negative,
             0x50 => !self.reg_status.overflow,
             0x70 => self.reg_status.overflow,
             0x90 => !self.reg_status.carry,
@@ -244,6 +449,7 @@ impl Cpu {
     fn opcode_name(&self, opcode: u8) -> &'static str {
         match opcode {
             0x10 => "BPL",
+            0x30 => "BMI",
             0x50 => "BVC",
             0x70 => "BVS",
             0x90 => "BCC",

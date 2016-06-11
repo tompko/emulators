@@ -3,6 +3,7 @@ pub struct RegStatus {
     pub carry: bool,
     pub zero: bool,
     pub interrupt_disable: bool,
+    pub decimal: bool,
     pub break_command: bool,
     expansion: bool,
     pub overflow: bool,
@@ -15,6 +16,7 @@ impl From<u8> for RegStatus {
             carry: (value & 1) != 0,
             zero: (value & (1 << 1)) != 0,
             interrupt_disable: (value & (1 << 2)) != 0,
+            decimal: (value & (1 << 3)) != 0,
             break_command: (value & (1 << 4)) != 0,
             expansion: true,
             overflow: (value & (1 << 6)) != 0,
@@ -34,6 +36,9 @@ impl Into<u8> for RegStatus {
         }
         if self.interrupt_disable {
             ret |= 1 << 2;
+        }
+        if self.decimal {
+            ret |= 1 << 3;
         }
         if self.break_command {
             ret |= 1 << 4;
