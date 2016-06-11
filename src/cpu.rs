@@ -93,7 +93,18 @@ impl Cpu {
             self.time = 0;
             return;
         }
+        // LDY
+        if self.opcode == 0xa0 && self.time == 2 {
+            let value = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            self.reg_y = value;
+            self.reg_status.zero = value == 0;
+            self.reg_status.negative = (value & (1 << 7)) != 0;
 
+            println!("{:04X}  {:02X} {:02X}      LDY #${:02X}      {:?}", self.instr_pc, self.opcode, self.reg_y, self.reg_y, self);
+            self.time = 0;
+            return;
+        }
         // LDA
         if self.opcode == 0xa9 && self.time == 2 {
             let value = interconnect.read_byte(self.reg_pc);
@@ -173,11 +184,17 @@ impl Cpu {
             return;
         }
 
-        if (self.opcode == 0x86 || self.opcode == 0x85 || self.opcode == 0x24) && self.time == 2 {
+        if (self.opcode == 0x84 || self.opcode == 0x86 || self.opcode == 0x85 || self.opcode == 0x24) && self.time == 2 {
             // TODO - All Zero Page instructions should share this
-            // T2 - STX/STA/BIT Zero Page
+            // T2 - STY/STX/STA/BIT Zero Page
             self.fetch = interconnect.read_byte(self.reg_pc);
             self.reg_pc += 1;
+            return;
+        }
+        if self.opcode == 0x84 && self.time == 3 {
+            interconnect.write_byte(self.fetch as u16, self.reg_y);
+            println!("{:04X}  {:02X} {:02X}      STY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_y, self);
+            self.time = 0;
             return;
         }
         if self.opcode == 0x86 && self.time == 3 {
@@ -347,6 +364,79 @@ impl Cpu {
         if self.is_branch(self.opcode) && self.time == 5 {
         }
 
+        // INY
+        if self.opcode == 0xc8 && self.time == 2 {
+            self.reg_y = self.reg_y.wrapping_add(1);
+            self.reg_status.zero = self.reg_y == 0;
+            self.reg_status.negative = (self.reg_y & (1 << 7)) != 0;
+            println!("{:04X}  {:02X}         INY           {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // INX
+        if self.opcode == 0xe8 && self.time == 2 {
+            self.reg_x = self.reg_x.wrapping_add(1);
+            self.reg_status.zero = self.reg_x == 0;
+            self.reg_status.negative = (self.reg_x & (1 << 7)) != 0;
+            println!("{:04X}  {:02X}         INX           {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // DEY
+        if self.opcode == 0x88 && self.time == 2 {
+            self.reg_y = self.reg_y.wrapping_sub(1);
+            self.reg_status.zero = self.reg_y == 0;
+            self.reg_status.negative = (self.reg_y & (1 << 7)) != 0;
+            println!("{:04X}  {:02X}         DEY           {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // DEX
+        if self.opcode == 0xca && self.time == 2 {
+            self.reg_x = self.reg_x.wrapping_sub(1);
+            self.reg_status.zero = self.reg_x == 0;
+            self.reg_status.negative = (self.reg_x & (1 << 7)) != 0;
+            println!("{:04X}  {:02X}         DEX           {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // TAY
+        if self.opcode == 0xa8 && self.time == 2 {
+            self.reg_y = self.reg_a;
+            self.reg_status.zero = self.reg_y == 0;
+            self.reg_status.negative = (self.reg_y & (1 << 7)) != 0;
+            println!("{:04X}  {:02X}         TAY           {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // TAX
+        if self.opcode == 0xaa && self.time == 2 {
+            self.reg_x = self.reg_a;
+            self.reg_status.zero = self.reg_x == 0;
+            self.reg_status.negative = (self.reg_x & (1 << 7)) != 0;
+            println!("{:04X}  {:02X}         TAX           {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // TYA
+        if self.opcode == 0x98 && self.time == 2 {
+            self.reg_a = self.reg_y;
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            println!("{:04X}  {:02X}         TYA           {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // TXA
+        if self.opcode == 0x8a && self.time == 2 {
+            self.reg_a = self.reg_x;
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            println!("{:04X}  {:02X}         TXA           {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+
         // ORA
         if self.opcode == 0x09 && self.time == 2 {
             let mask = interconnect.read_byte(self.reg_pc);
@@ -383,9 +473,17 @@ impl Cpu {
             self.time = 0;
             return;
         }
+
+        if (self.opcode == 0x69 || self.opcode == 0xe9) && self.time == 2 {
+            self.fetch = interconnect.read_byte(self.reg_pc);
+        }
+        // SBC
+        if self.opcode == 0xe9 && self.time == 2 {
+            self.fetch = !self.fetch;
+        }
         // ADC
-        if self.opcode == 0x69 && self.time == 2 {
-            let val = interconnect.read_byte(self.reg_pc);
+        if (self.opcode == 0x69 || self.opcode == 0xe9) && self.time == 2 {
+            let val = self.fetch;
             let acc = self.reg_a;
             let carry = if self.reg_status.carry { 1 } else { 0 };
             self.reg_pc += 1;
@@ -399,11 +497,24 @@ impl Cpu {
             self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
             self.reg_status.carry = carry1 || carry2;
             self.reg_status.overflow = !(acc ^ val) & (acc ^ fin) & 0x80 != 0;
-            println!("{:04X}  {:02X} {:02X}      ADC #${:02X}      {:?}", self.instr_pc, self.opcode, val, val, self);
+            println!("{:04X}  {:02X} {:02X}      {} #${:02X}      {:?}", self.instr_pc, self.opcode, val, self.opcode_name(self.opcode), val, self);
             self.time = 0;
             return;
         }
 
+        // CPY
+        if self.opcode == 0xc0 && self.time == 2 {
+            let cmp = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            let res = self.reg_y.wrapping_sub(cmp);
+
+            self.reg_status.carry = self.reg_y >= cmp;
+            self.reg_status.zero = self.reg_y == cmp;
+            self.reg_status.negative = (res & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X}      CPY #${:02X}      {:?}", self.instr_pc, self.opcode, cmp, cmp, self);
+            self.time = 0;
+            return;
+        }
         // CMP
         if self.opcode == 0xc9 && self.time == 2 {
             let cmp = interconnect.read_byte(self.reg_pc);
@@ -417,6 +528,20 @@ impl Cpu {
             self.time = 0;
             return;
         }
+        // CPX
+        if self.opcode == 0xe0 && self.time == 2 {
+            let cmp = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            let res = self.reg_x.wrapping_sub(cmp);
+
+            self.reg_status.carry = self.reg_x >= cmp;
+            self.reg_status.zero = self.reg_x == cmp;
+            self.reg_status.negative = (res & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X}      CPX #${:02X}      {:?}", self.instr_pc, self.opcode, cmp, cmp, self);
+            self.time = 0;
+            return;
+        }
+
         panic!("Unmatched opcode/time pair {:x}/{}", self.opcode, self.time);
     }
 
@@ -451,10 +576,12 @@ impl Cpu {
             0x10 => "BPL",
             0x30 => "BMI",
             0x50 => "BVC",
+            0x69 => "ADC",
             0x70 => "BVS",
             0x90 => "BCC",
             0xb0 => "BCS",
             0xd0 => "BNE",
+            0xe9 => "SBC",
             0xf0 => "BEQ",
             _ => panic!("Unrecognised instruction {:02X}", opcode),
         }
