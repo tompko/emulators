@@ -34,14 +34,6 @@ impl Interconnect {
         }
     }
 
-    pub fn read_word(&self, addr: u16) -> u16 {
-        match map_addr(addr) {
-            Addr::Ram(offset) => self.cpu_ram.read_word(offset),
-            Addr::PrgRom1(offset) => self.cart.read_prg_word(0, offset),
-            Addr::PrgRom2(offset) => self.cart.read_prg_word(1, offset),
-        }
-    }
-
     pub fn write_byte(&mut self, addr: u16, val: u8) {
         match map_addr(addr) {
             Addr::Ram(offset) => self.cpu_ram.write_byte(offset, val),

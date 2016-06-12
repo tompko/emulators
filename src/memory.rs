@@ -1,5 +1,3 @@
-use super::byteorder::{LittleEndian, ByteOrder};
-
 pub const RAM_BYTES: usize = 2*1024;
 
 pub struct Memory {
@@ -15,10 +13,6 @@ impl Memory {
 
     pub fn read_byte(&self, addr: u16) -> u8 {
         self.ram[addr as usize]
-    }
-
-    pub fn read_word(&self, addr: u16) -> u16 {
-        LittleEndian::read_u16(&self.ram[addr as usize..])
     }
 
     pub fn write_byte(&mut self, addr: u16, val: u8) {

@@ -1,5 +1,3 @@
-use super::byteorder::{ByteOrder, LittleEndian};
-
 const PRG_PAGE_SIZE: usize = 16*1024;
 const CHR_PAGE_SIZE: usize = 8*1024;
 
@@ -52,13 +50,5 @@ impl Cart {
         let base_offset = self.prg_rom_offsets[page_index];
 
         self.cart_rom[base_offset.0 + offset as usize]
-    }
-
-    pub fn read_prg_word(&self, pgr_page: usize, offset: u16) -> u16 {
-        let page_index = self.active_prg_pages[pgr_page];
-        let base_offset = self.prg_rom_offsets[page_index];
-        let addr = base_offset.0 + offset as usize;
-
-        LittleEndian::read_u16(&self.cart_rom[addr..])
     }
 }
