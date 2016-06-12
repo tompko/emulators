@@ -14,6 +14,7 @@ pub struct Cpu {
     opcode: u8,
     time: u8,  // cycle of opcode we're executing next
     fetch: u8, // in the real 6502 this would sit on the data bus
+    address: u16,
 }
 
 impl Default for Cpu {
@@ -30,6 +31,7 @@ impl Default for Cpu {
             opcode: 0,
             time: 0,
             fetch: 0,
+            address: 0,
         }
     }
 }
@@ -222,6 +224,46 @@ impl Cpu {
             return;
         }
 
+        // Absolute addressing
+        if self.is_absolute(self.opcode) && self.time == 2 {
+            self.fetch = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            return;
+        }
+        if self.is_absolute(self.opcode) && self.time == 3 {
+            let addr_hi = interconnect.read_byte(self.reg_pc) as u16;
+            self.reg_pc += 1;
+            self.address = (addr_hi << 8) | self.fetch as u16;
+            return
+        }
+        // STX Absolute
+        if self.opcode == 0x8e && self.time == 4 {
+            interconnect.write_byte(self.address, self.reg_x);
+            println!("{:04X}  {:02X} {:02X} {:02X}   STX ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_x, self);
+            self.time = 0;
+            return;
+        }
+        // LDX Absolute
+        if self.opcode == 0xae && self.time == 4 {
+            let val = interconnect.read_byte(self.address);
+            self.reg_x = val;
+            self.reg_status.zero = val == 0;
+            self.reg_status.negative = (val & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X} {:02X}   LDX ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_x, self);
+            self.time = 0;
+            return;
+        }
+        // LDA Absolute
+        if self.opcode == 0xad && self.time == 4 {
+            let val = interconnect.read_byte(self.address);
+            self.reg_a = val;
+            self.reg_status.zero = val == 0;
+            self.reg_status.negative = (val & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X} {:02X}   LDA ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+
         // JSR
         if self.opcode == 0x20 && self.time == 2{
             self.fetch = interconnect.read_byte(self.reg_pc);
@@ -273,6 +315,35 @@ impl Cpu {
         if self.opcode == 0x60 && self.time == 6 {
             self.reg_pc += 1;
             println!("{:04X}  {:02X}         RTS          {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+
+        // RTS
+        if self.opcode == 0x40 && self.time == 2 {
+            // read the next instruction and discard it
+            return;
+        }
+        if self.opcode == 0x40 && self.time == 3 {
+            self.reg_s += 1;
+            return;
+        }
+        if self.opcode == 0x40 && self.time == 4 {
+            let val = self.stack_peek(interconnect);
+            self.reg_s += 1;
+            self.reg_status = val.into();
+            return;
+        }
+        if self.opcode == 0x40 && self.time == 5 {
+            let pcl = self.stack_peek(interconnect) as u16;
+            self.reg_pc = (self.reg_pc & 0xff00) | pcl;
+            self.reg_s += 1;
+            return;
+        }
+        if self.opcode == 0x40 && self.time == 6 {
+            let pch = self.stack_peek(interconnect) as u16;
+            self.reg_pc = (pch << 8) | (self.reg_pc & 0x00ff);
+            println!("{:04X}  {:02X}         RTI          {:?}", self.instr_pc, self.opcode, self);
             self.time = 0;
             return;
         }
@@ -436,6 +507,22 @@ impl Cpu {
             self.time = 0;
             return;
         }
+        // TSX
+        if self.opcode == 0xba && self.time == 2 {
+            self.reg_x = self.reg_s;
+            self.reg_status.zero = self.reg_x == 0;
+            self.reg_status.negative = (self.reg_x & (1 << 7)) != 0;
+            println!("{:04X}  {:02X}         TSX           {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // TXS
+        if self.opcode == 0x9a && self.time == 2 {
+            self.reg_s = self.reg_x;
+            println!("{:04X}  {:02X}         TXS           {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
 
         // ORA
         if self.opcode == 0x09 && self.time == 2 {
@@ -546,17 +633,23 @@ impl Cpu {
     }
 
     fn stack_push(&mut self, interconnect: &mut Interconnect, val: u8) {
-        interconnect.write_byte(self.reg_s as u16, val);
+        let addr = 0x0100 + self.reg_s as u16;
+        interconnect.write_byte(addr, val);
         self.reg_s -= 1;
     }
 
     fn stack_peek(&self, interconnect: &Interconnect) -> u8 {
-        interconnect.read_byte(self.reg_s as u16)
+        let addr = 0x0100 + self.reg_s as u16;
+        interconnect.read_byte(addr)
     }
 
     fn is_branch(&self, opcode: u8) -> bool {
         opcode & 16 == 16 && !opcode & 15 == 15
     }
+    fn is_absolute(&self, opcode:u8) -> bool {
+        opcode & 12 == 12 && !opcode & 16 == 16
+    }
+
     fn take_branch(&self, opcode: u8) -> bool {
         match opcode {
             0x10 => !self.reg_status.negative,
