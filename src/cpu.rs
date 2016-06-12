@@ -119,6 +119,62 @@ impl Cpu {
             self.time = 0;
             return;
         }
+        // ASL - Accumulator
+        if self.opcode == 0x0a && self.time == 2 {
+            let val = self.reg_a << 1;
+
+            self.reg_status.carry = self.reg_a >> 7  != 0;
+            self.reg_status.zero = val == 0;
+            self.reg_status.negative = (val & (1 << 7)) != 0;
+            self.reg_a = val;
+
+            println!("{:04X}  {:02X}         ASL A       {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // LSR - Accumulator
+        if self.opcode == 0x4a && self.time == 2 {
+            let val = self.reg_a >> 1;
+
+            self.reg_status.carry = self.reg_a & 0x1 != 0;
+            self.reg_status.zero = val == 0;
+            self.reg_status.negative = false;
+            self.reg_a = val;
+
+            println!("{:04X}  {:02X}         LSR A       {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // ROR - Accumulator
+        if self.opcode == 0x6a && self.time == 2 {
+            let val = self.reg_a >> 1;
+            let carry = if self.reg_status.carry { 1 } else { 0 };
+            let val = val | (carry << 7);
+
+            self.reg_status.carry = self.reg_a & 0x1 != 0;
+            self.reg_status.zero = val == 0;
+            self.reg_status.negative = (val & (1 << 7)) != 0;
+            self.reg_a = val;
+
+            println!("{:04X}  {:02X}         ROR A       {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+        // ROL - Accumulator
+        if self.opcode == 0x2a && self.time == 2 {
+            let val = self.reg_a << 1;
+            let carry = if self.reg_status.carry { 1 } else { 0 };
+            let val = val | carry;
+
+            self.reg_status.carry = self.reg_a & (1 << 7) != 0;
+            self.reg_status.zero = val == 0;
+            self.reg_status.negative = (val & (1 << 7)) != 0;
+            self.reg_a = val;
+
+            println!("{:04X}  {:02X}         ROL A       {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
 
         // PHP
         if self.opcode == 0x08 && self.time == 2 {
@@ -186,9 +242,7 @@ impl Cpu {
             return;
         }
 
-        if (self.opcode == 0x84 || self.opcode == 0x86 || self.opcode == 0x85 || self.opcode == 0x24) && self.time == 2 {
-            // TODO - All Zero Page instructions should share this
-            // T2 - STY/STX/STA/BIT Zero Page
+        if self.is_zero_page(self.opcode) && self.time == 2 {
             self.fetch = interconnect.read_byte(self.reg_pc);
             self.reg_pc += 1;
             return;
@@ -208,6 +262,15 @@ impl Cpu {
         if self.opcode == 0x85 && self.time == 3 {
             interconnect.write_byte(self.fetch as u16, self.reg_a);
             println!("{:04X}  {:02X} {:02X}      STA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0xa5 && self.time == 3 {
+            let val = interconnect.read_byte(self.fetch as u16);
+            self.reg_a = val;
+            self.reg_status.zero = val == 0;
+            self.reg_status.negative = (val & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X}      LDA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_a, self);
             self.time = 0;
             return;
         }
@@ -243,6 +306,13 @@ impl Cpu {
             self.time = 0;
             return;
         }
+        // STA Absolute
+        if self.opcode == 0x8d && self.time == 4 {
+            interconnect.write_byte(self.address, self.reg_a);
+            println!("{:04X}  {:02X} {:02X} {:02X}   STA ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
         // LDX Absolute
         if self.opcode == 0xae && self.time == 4 {
             let val = interconnect.read_byte(self.address);
@@ -260,6 +330,78 @@ impl Cpu {
             self.reg_status.zero = val == 0;
             self.reg_status.negative = (val & (1 << 7)) != 0;
             println!("{:04X}  {:02X} {:02X} {:02X}   LDA ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+
+        // Indexed Indirect Addressing
+        if self.is_indexed_indirect(self.opcode) && self.time == 2 {
+            self.fetch = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            print!("{0:04X}  {1:02X} {2:02X}      {3} (${2:02X}, X) @ {2:02X} = ", self.instr_pc, self.opcode, self.fetch, self.opcode_name(self.opcode));
+            return;
+        }
+        if self.is_indexed_indirect(self.opcode) && self.time == 3 {
+            self.fetch = self.fetch.wrapping_add(self.reg_x);
+            return;
+        }
+        if self.is_indexed_indirect(self.opcode) && self.time == 4 {
+            let addr_lo = interconnect.read_byte(self.fetch as u16) as u16;
+            self.address = addr_lo;
+            return;
+        }
+        if self.is_indexed_indirect(self.opcode) && self.time == 5 {
+            let addr_hi = interconnect.read_byte(self.fetch.wrapping_add(1) as u16) as u16;
+            self.address = (addr_hi << 8) | self.address;
+            return;
+        }
+        // ORA
+        if self.opcode == 0x01 && self.time == 6 {
+            let mask = interconnect.read_byte(self.address);
+            self.reg_a |= mask;
+
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            println!("{:04X} =  {:02X}       {:?}", self.address, mask, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0x21 && self.time == 6 {
+            let mask = interconnect.read_byte(self.address);
+            self.reg_a &= mask;
+
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            println!("{:04X} =  {:02X}       {:?}", self.address, mask, self);
+            self.time = 0;
+            return;
+        }
+        // EOR
+        if self.opcode == 0x41 && self.time == 6 {
+            let mask = interconnect.read_byte(self.address);
+            self.reg_a ^= mask;
+
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            println!("{:04X} =  {:02X}       {:?}", self.address, mask, self);
+            self.time = 0;
+            return;
+        }
+        //STA
+        if self.opcode == 0x81 && self.time == 6 {
+            interconnect.write_byte(self.address, self.reg_a);
+
+            println!("{:04X} = {:02X}   {:?}", self.address, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        // LDA
+        if self.opcode == 0xa1 && self.time == 6 {
+            self.reg_a = interconnect.read_byte(self.address);
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+
+            println!("{:04X} = {:02X}   {:?}", self.address, self.reg_a, self);
             self.time = 0;
             return;
         }
@@ -646,8 +788,17 @@ impl Cpu {
     fn is_branch(&self, opcode: u8) -> bool {
         opcode & 16 == 16 && !opcode & 15 == 15
     }
+
     fn is_absolute(&self, opcode:u8) -> bool {
         opcode & 12 == 12 && !opcode & 16 == 16
+    }
+
+    fn is_zero_page(&self, opcode: u8) -> bool {
+        opcode & 4 == 4 && !opcode & 24 == 24
+    }
+
+    fn is_indexed_indirect(&self, opcode: u8) -> bool {
+        opcode & 1 == 1 && !opcode & 30 == 30
     }
 
     fn take_branch(&self, opcode: u8) -> bool {
@@ -666,12 +817,17 @@ impl Cpu {
 
     fn opcode_name(&self, opcode: u8) -> &'static str {
         match opcode {
+            0x01 => "ORA",
             0x10 => "BPL",
+            0x21 => "AND",
             0x30 => "BMI",
+            0x41 => "EOR",
             0x50 => "BVC",
             0x69 => "ADC",
             0x70 => "BVS",
+            0x81 => "STA",
             0x90 => "BCC",
+            0xa1 => "LDA",
             0xb0 => "BCS",
             0xd0 => "BNE",
             0xe9 => "SBC",
