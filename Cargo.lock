@@ -1,5 +1,5 @@
 [root]
-name = "nesRS"
+name = "nes_rs"
 version = "0.1.0"
 dependencies = [
  "byteorder 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",

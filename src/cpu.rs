@@ -57,6 +57,7 @@ impl Cpu {
         }
     }
 
+    #[allow(cyclomatic_complexity)]
     fn execute_cycle(&mut self, interconnect: &mut Interconnect) {
         self.time += 1;
         if self.time == 1 {
@@ -428,7 +429,7 @@ impl Cpu {
         }
         if self.is_indexed_indirect(self.opcode) && self.time == 5 {
             let addr_hi = interconnect.read_byte(self.fetch.wrapping_add(1) as u16) as u16;
-            self.address = (addr_hi << 8) | self.address;
+            self.address |= addr_hi << 8;
             return;
         }
         // ORA
@@ -941,8 +942,7 @@ impl Cpu {
             0x30 => "BMI",
             0x41 => "EOR",
             0x50 => "BVC",
-            0x61 => "ADC",
-            0x69 => "ADC",
+            0x61 | 0x69 => "ADC",
             0x70 => "BVS",
             0x81 => "STA",
             0x90 => "BCC",
@@ -950,8 +950,7 @@ impl Cpu {
             0xb0 => "BCS",
             0xc1 => "CMP",
             0xd0 => "BNE",
-            0xe1 => "SBC",
-            0xe9 => "SBC",
+            0xe1 | 0xe9 => "SBC",
             0xf0 => "BEQ",
             _ => panic!("Unrecognised instruction {:02X}", opcode),
         }
