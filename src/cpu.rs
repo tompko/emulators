@@ -247,30 +247,13 @@ impl Cpu {
             self.reg_pc += 1;
             return;
         }
-        if self.opcode == 0x84 && self.time == 3 {
-            interconnect.write_byte(self.fetch as u16, self.reg_y);
-            println!("{:04X}  {:02X} {:02X}      STY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_y, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0x86 && self.time == 3 {
-            interconnect.write_byte(self.fetch as u16, self.reg_x);
-            println!("{:04X}  {:02X} {:02X}      STX ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_x, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0x85 && self.time == 3 {
-            interconnect.write_byte(self.fetch as u16, self.reg_a);
-            println!("{:04X}  {:02X} {:02X}      STA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0xa5 && self.time == 3 {
-            let val = interconnect.read_byte(self.fetch as u16);
-            self.reg_a = val;
-            self.reg_status.zero = val == 0;
-            self.reg_status.negative = (val & (1 << 7)) != 0;
-            println!("{:04X}  {:02X} {:02X}      LDA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_a, self);
+        if self.opcode == 0x05 && self.time == 3 {
+            let mask = interconnect.read_byte(self.fetch as u16);
+            self.reg_a |= mask;
+
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X}      ORA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, mask, self);
             self.time = 0;
             return;
         }
@@ -283,6 +266,99 @@ impl Cpu {
             self.reg_status.negative = (mask & (1 << 7)) != 0;
 
             println!("{:04X}  {:02X} {:02X}      BIT ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, mask, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0x25 && self.time == 3 {
+            let mask = interconnect.read_byte(self.fetch as u16);
+            self.reg_a &= mask;
+
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X}      AND ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, mask, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0x45 && self.time == 3 {
+            let mask = interconnect.read_byte(self.fetch as u16);
+            self.reg_a ^= mask;
+
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X}      EOR ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, mask, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0x65 && self.time == 3 {
+            let val = interconnect.read_byte(self.fetch as u16);
+            self.adc(val);
+            println!("{:04X}  {:02X} {:02X}      ADC ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0x84 && self.time == 3 {
+            interconnect.write_byte(self.fetch as u16, self.reg_y);
+            println!("{:04X}  {:02X} {:02X}      STY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_y, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0x85 && self.time == 3 {
+            interconnect.write_byte(self.fetch as u16, self.reg_a);
+            println!("{:04X}  {:02X} {:02X}      STA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0x86 && self.time == 3 {
+            interconnect.write_byte(self.fetch as u16, self.reg_x);
+            println!("{:04X}  {:02X} {:02X}      STX ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_x, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0xa4 && self.time == 3 {
+            let val = interconnect.read_byte(self.fetch as u16);
+            self.reg_y = val;
+            self.reg_status.zero = val == 0;
+            self.reg_status.negative = (val & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X}      LDY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_y, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0xa5 && self.time == 3 {
+            let val = interconnect.read_byte(self.fetch as u16);
+            self.reg_a = val;
+            self.reg_status.zero = val == 0;
+            self.reg_status.negative = (val & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X}      LDA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0xa6 && self.time == 3 {
+            let val = interconnect.read_byte(self.fetch as u16);
+            self.reg_x = val;
+            self.reg_status.zero = val == 0;
+            self.reg_status.negative = (val & (1 << 7)) != 0;
+            println!("{:04X}  {:02X} {:02X}      LDX ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_x, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0xc5 && self.time == 3 {
+            let val = interconnect.read_byte(self.fetch as u16);
+            self.cmp(val);
+            println!("{:04X}  {:02X} {:02X}      CMP ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0xe4 && self.time == 3 {
+            let val = interconnect.read_byte(self.fetch as u16);
+            self.cpx(val);
+            println!("{:04X}  {:02X} {:02X}      CMP ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0xe5 && self.time == 3 {
+            let val = !interconnect.read_byte(self.fetch as u16);
+            self.adc(val);
+            println!("{:04X}  {:02X} {:02X}      SBC ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
             self.time = 0;
             return;
         }
@@ -366,6 +442,7 @@ impl Cpu {
             self.time = 0;
             return;
         }
+        // AND
         if self.opcode == 0x21 && self.time == 6 {
             let mask = interconnect.read_byte(self.address);
             self.reg_a &= mask;
@@ -387,7 +464,16 @@ impl Cpu {
             self.time = 0;
             return;
         }
-        //STA
+        // ADC
+        if self.opcode == 0x61 && self.time == 6 {
+            let val = interconnect.read_byte(self.address);
+            self.adc(val);
+
+            println!("{:04X} = {:02X}        {:?}", self.address, val, self);
+            self.time = 0;
+            return;
+        }
+        // STA
         if self.opcode == 0x81 && self.time == 6 {
             interconnect.write_byte(self.address, self.reg_a);
 
@@ -402,6 +488,23 @@ impl Cpu {
             self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
 
             println!("{:04X} = {:02X}   {:?}", self.address, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        // CMP
+        if self.opcode == 0xc1 && self.time == 6 {
+            let val = interconnect.read_byte(self.address);
+            self.cmp(val);
+
+            println!("{:04X} = {:02X}   {:?}", self.address, val, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0xe1 && self.time == 6 {
+            let val = !interconnect.read_byte(self.address);
+            self.adc(val);
+
+            println!("{:04X} = {:02X}        {:?}", self.address, val, self);
             self.time = 0;
             return;
         }
@@ -703,29 +806,20 @@ impl Cpu {
             return;
         }
 
-        if (self.opcode == 0x69 || self.opcode == 0xe9) && self.time == 2 {
-            self.fetch = interconnect.read_byte(self.reg_pc);
-        }
         // SBC
         if self.opcode == 0xe9 && self.time == 2 {
-            self.fetch = !self.fetch;
+            let val = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            self.adc(!val);
+            println!("{:04X}  {:02X} {:02X}      {} #${:02X}      {:?}", self.instr_pc, self.opcode, val, self.opcode_name(self.opcode), val, self);
+            self.time = 0;
+            return;
         }
         // ADC
-        if (self.opcode == 0x69 || self.opcode == 0xe9) && self.time == 2 {
-            let val = self.fetch;
-            let acc = self.reg_a;
-            let carry = if self.reg_status.carry { 1 } else { 0 };
+        if (self.opcode == 0x69) && self.time == 2 {
+            let val = interconnect.read_byte(self.reg_pc);
             self.reg_pc += 1;
-
-            let (int, carry1) = val.overflowing_add(acc);
-            let (fin, carry2) = int.overflowing_add(carry);
-
-            self.reg_a = fin;
-
-            self.reg_status.zero = self.reg_a == 0;
-            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
-            self.reg_status.carry = carry1 || carry2;
-            self.reg_status.overflow = !(acc ^ val) & (acc ^ fin) & 0x80 != 0;
+            self.adc(val);
             println!("{:04X}  {:02X} {:02X}      {} #${:02X}      {:?}", self.instr_pc, self.opcode, val, self.opcode_name(self.opcode), val, self);
             self.time = 0;
             return;
@@ -746,27 +840,20 @@ impl Cpu {
         }
         // CMP
         if self.opcode == 0xc9 && self.time == 2 {
-            let cmp = interconnect.read_byte(self.reg_pc);
+            let val = interconnect.read_byte(self.reg_pc);
             self.reg_pc += 1;
-            let res = self.reg_a.wrapping_sub(cmp);
+            self.cmp(val);
 
-            self.reg_status.carry = self.reg_a >= cmp;
-            self.reg_status.zero = self.reg_a == cmp;
-            self.reg_status.negative = (res & (1 << 7)) != 0;
-            println!("{:04X}  {:02X} {:02X}      CMP #${:02X}      {:?}", self.instr_pc, self.opcode, cmp, cmp, self);
+            println!("{:04X}  {:02X} {:02X}      CMP #${:02X}      {:?}", self.instr_pc, self.opcode, val, val, self);
             self.time = 0;
             return;
         }
         // CPX
         if self.opcode == 0xe0 && self.time == 2 {
-            let cmp = interconnect.read_byte(self.reg_pc);
+            let val = interconnect.read_byte(self.reg_pc);
             self.reg_pc += 1;
-            let res = self.reg_x.wrapping_sub(cmp);
-
-            self.reg_status.carry = self.reg_x >= cmp;
-            self.reg_status.zero = self.reg_x == cmp;
-            self.reg_status.negative = (res & (1 << 7)) != 0;
-            println!("{:04X}  {:02X} {:02X}      CPX #${:02X}      {:?}", self.instr_pc, self.opcode, cmp, cmp, self);
+            self.cpx(val);
+            println!("{:04X}  {:02X} {:02X}      CPX #${:02X}      {:?}", self.instr_pc, self.opcode, val, val, self);
             self.time = 0;
             return;
         }
@@ -801,6 +888,37 @@ impl Cpu {
         opcode & 1 == 1 && !opcode & 30 == 30
     }
 
+    fn adc(&mut self, val: u8) {
+        let acc = self.reg_a;
+        let carry = if self.reg_status.carry { 1 } else { 0 };
+
+        let (int, carry1) = val.overflowing_add(acc);
+        let (fin, carry2) = int.overflowing_add(carry);
+
+        self.reg_a = fin;
+
+        self.reg_status.zero = self.reg_a == 0;
+        self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+        self.reg_status.carry = carry1 || carry2;
+        self.reg_status.overflow = !(acc ^ val) & (acc ^ fin) & 0x80 != 0;
+    }
+
+    fn cmp(&mut self, val: u8) {
+        let res = self.reg_a.wrapping_sub(val);
+
+        self.reg_status.zero = self.reg_a == val;
+        self.reg_status.carry = self.reg_a >= val;
+        self.reg_status.negative = (res & (1 << 7)) != 0;
+    }
+
+    fn cpx(&mut self, val: u8) {
+        let res = self.reg_x.wrapping_sub(val);
+
+        self.reg_status.carry = self.reg_x >= val;
+        self.reg_status.zero = self.reg_x == val;
+        self.reg_status.negative = (res & (1 << 7)) != 0;
+    }
+
     fn take_branch(&self, opcode: u8) -> bool {
         match opcode {
             0x10 => !self.reg_status.negative,
@@ -823,13 +941,16 @@ impl Cpu {
             0x30 => "BMI",
             0x41 => "EOR",
             0x50 => "BVC",
+            0x61 => "ADC",
             0x69 => "ADC",
             0x70 => "BVS",
             0x81 => "STA",
             0x90 => "BCC",
             0xa1 => "LDA",
             0xb0 => "BCS",
+            0xc1 => "CMP",
             0xd0 => "BNE",
+            0xe1 => "SBC",
             0xe9 => "SBC",
             0xf0 => "BEQ",
             _ => panic!("Unrecognised instruction {:02X}", opcode),
