@@ -57,6 +57,7 @@ impl Cpu {
         }
     }
 
+    #[allow(unknown_lints)]
     #[allow(cyclomatic_complexity)]
     fn execute_cycle(&mut self, interconnect: &mut Interconnect) {
         self.time += 1;
@@ -122,11 +123,8 @@ impl Cpu {
         }
         // ASL - Accumulator
         if self.opcode == 0x0a && self.time == 2 {
-            let val = self.reg_a << 1;
-
-            self.reg_status.carry = self.reg_a >> 7  != 0;
-            self.reg_status.zero = val == 0;
-            self.reg_status.negative = (val & (1 << 7)) != 0;
+            let acc = self.reg_a;
+            let val = self.asl(acc);
             self.reg_a = val;
 
             println!("{:04X}  {:02X}         ASL A       {:?}", self.instr_pc, self.opcode, self);
@@ -135,11 +133,8 @@ impl Cpu {
         }
         // LSR - Accumulator
         if self.opcode == 0x4a && self.time == 2 {
-            let val = self.reg_a >> 1;
-
-            self.reg_status.carry = self.reg_a & 0x1 != 0;
-            self.reg_status.zero = val == 0;
-            self.reg_status.negative = false;
+            let acc = self.reg_a;
+            let val = self.lsr(acc);
             self.reg_a = val;
 
             println!("{:04X}  {:02X}         LSR A       {:?}", self.instr_pc, self.opcode, self);
@@ -243,6 +238,7 @@ impl Cpu {
             return;
         }
 
+        // TODO - RW ops should take 5 cycles
         if self.is_zero_page(self.opcode) && self.time == 2 {
             self.fetch = interconnect.read_byte(self.reg_pc);
             self.reg_pc += 1;
@@ -255,6 +251,15 @@ impl Cpu {
             self.reg_status.zero = self.reg_a == 0;
             self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
             println!("{:04X}  {:02X} {:02X}      ORA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, mask, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0x06 && self.time == 3 {
+            let val = interconnect.read_byte(self.fetch as u16);
+            let val = self.asl(val);
+            interconnect.write_byte(self.fetch as u16, val);
+
+            println!("{:04X}  {:02X} {:02X}      ASL ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
             self.time = 0;
             return;
         }
@@ -287,6 +292,15 @@ impl Cpu {
             self.reg_status.zero = self.reg_a == 0;
             self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
             println!("{:04X}  {:02X} {:02X}      EOR ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, mask, self);
+            self.time = 0;
+            return;
+        }
+        if self.opcode == 0x46 && self.time == 3 {
+            let val = interconnect.read_byte(self.fetch as u16);
+            let val = self.lsr(val);
+            interconnect.write_byte(self.fetch as u16, val);
+
+            println!("{:04X}  {:02X} {:02X}      LSR ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
             self.time = 0;
             return;
         }
@@ -342,6 +356,14 @@ impl Cpu {
             self.time = 0;
             return;
         }
+        if self.opcode == 0xc4 && self.time == 3 {
+            let val = interconnect.read_byte(self.fetch as u16);
+            self.cpy(val);
+
+            println!("{:04X}  {:02X} {:02X}      CPY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
+            self.time = 0;
+            return;
+        }
         if self.opcode == 0xc5 && self.time == 3 {
             let val = interconnect.read_byte(self.fetch as u16);
             self.cmp(val);
@@ -352,7 +374,7 @@ impl Cpu {
         if self.opcode == 0xe4 && self.time == 3 {
             let val = interconnect.read_byte(self.fetch as u16);
             self.cpx(val);
-            println!("{:04X}  {:02X} {:02X}      CMP ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
+            println!("{:04X}  {:02X} {:02X}      CPX ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
             self.time = 0;
             return;
         }
@@ -828,14 +850,11 @@ impl Cpu {
 
         // CPY
         if self.opcode == 0xc0 && self.time == 2 {
-            let cmp = interconnect.read_byte(self.reg_pc);
+            let val = interconnect.read_byte(self.reg_pc);
             self.reg_pc += 1;
-            let res = self.reg_y.wrapping_sub(cmp);
+            self.cpy(val);
 
-            self.reg_status.carry = self.reg_y >= cmp;
-            self.reg_status.zero = self.reg_y == cmp;
-            self.reg_status.negative = (res & (1 << 7)) != 0;
-            println!("{:04X}  {:02X} {:02X}      CPY #${:02X}      {:?}", self.instr_pc, self.opcode, cmp, cmp, self);
+            println!("{:04X}  {:02X} {:02X}      CPY #${:02X}      {:?}", self.instr_pc, self.opcode, val, val, self);
             self.time = 0;
             return;
         }
@@ -904,6 +923,16 @@ impl Cpu {
         self.reg_status.overflow = !(acc ^ val) & (acc ^ fin) & 0x80 != 0;
     }
 
+    fn asl(&mut self, val: u8) -> u8 {
+        let res = val << 1;
+
+        self.reg_status.carry = (val >> 7) != 0;
+        self.reg_status.zero = res == 0;
+        self.reg_status.negative = (res & (1 << 7)) != 0;
+
+        res
+    }
+
     fn cmp(&mut self, val: u8) {
         let res = self.reg_a.wrapping_sub(val);
 
@@ -918,6 +947,24 @@ impl Cpu {
         self.reg_status.carry = self.reg_x >= val;
         self.reg_status.zero = self.reg_x == val;
         self.reg_status.negative = (res & (1 << 7)) != 0;
+    }
+
+    fn cpy(&mut self, val: u8) {
+        let res = self.reg_y.wrapping_sub(val);
+
+        self.reg_status.carry = self.reg_y >= val;
+        self.reg_status.zero = self.reg_y == val;
+        self.reg_status.negative = (res & (1 << 7)) != 0;
+    }
+
+    fn lsr(&mut self, val: u8) -> u8 {
+        let res = val >> 1;
+
+        self.reg_status.carry = val & 0x1 != 0;
+        self.reg_status.zero = res == 0;
+        self.reg_status.negative = false;
+
+        res
     }
 
     fn take_branch(&self, opcode: u8) -> bool {
