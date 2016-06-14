@@ -430,6 +430,22 @@ impl Cpu {
             self.time = 0;
             return;
         }
+        // AND Absolute
+        if self.opcode == 0x2d && self.time == 4 {
+            let mask = interconnect.read_byte(self.address);
+            self.and(mask);
+            println!("{:04X}  {:02X} {:02X} {:02X}   AND ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        // EOR Absolute
+        if self.opcode == 0x4d && self.time == 4 {
+            let mask = interconnect.read_byte(self.address);
+            self.eor(mask);
+            println!("{:04X}  {:02X} {:02X} {:02X}   EOR ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
         // STY Absolute
         if self.opcode == 0x8c && self.time == 4 {
             interconnect.write_byte(self.address, self.reg_y);
@@ -506,10 +522,8 @@ impl Cpu {
         // ORA
         if self.opcode == 0x01 && self.time == 6 {
             let mask = interconnect.read_byte(self.address);
-            self.reg_a |= mask;
+            self.ora(mask);
 
-            self.reg_status.zero = self.reg_a == 0;
-            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
             println!("{:04X} =  {:02X}       {:?}", self.address, mask, self);
             self.time = 0;
             return;
@@ -517,10 +531,7 @@ impl Cpu {
         // AND
         if self.opcode == 0x21 && self.time == 6 {
             let mask = interconnect.read_byte(self.address);
-            self.reg_a &= mask;
-
-            self.reg_status.zero = self.reg_a == 0;
-            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            self.and(mask);
             println!("{:04X} =  {:02X}       {:?}", self.address, mask, self);
             self.time = 0;
             return;
@@ -528,10 +539,7 @@ impl Cpu {
         // EOR
         if self.opcode == 0x41 && self.time == 6 {
             let mask = interconnect.read_byte(self.address);
-            self.reg_a ^= mask;
-
-            self.reg_status.zero = self.reg_a == 0;
-            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            self.eor(mask);
             println!("{:04X} =  {:02X}       {:?}", self.address, mask, self);
             self.time = 0;
             return;
@@ -869,10 +877,7 @@ impl Cpu {
         if self.opcode == 0x49 && self.time == 2 {
             let mask = interconnect.read_byte(self.reg_pc);
             self.reg_pc += 1;
-            self.reg_a ^= mask;
-
-            self.reg_status.zero = self.reg_a == 0;
-            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            self.eor(mask);
             println!("{:04X}  {:02X} {:02X}      EOR #${:02X}      {:?}", self.instr_pc, self.opcode, mask, mask, self);
             self.time = 0;
             return;
@@ -972,6 +977,13 @@ impl Cpu {
         self.reg_status.overflow = !(acc ^ val) & (acc ^ fin) & 0x80 != 0;
     }
 
+    fn and(&mut self, mask: u8) {
+        self.reg_a &= mask;
+
+        self.reg_status.zero = self.reg_a == 0;
+        self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+    }
+
     fn asl(&mut self, val: u8) -> u8 {
         let res = val << 1;
 
@@ -1020,6 +1032,13 @@ impl Cpu {
         self.reg_status.zero = res == 0;
         self.reg_status.negative = (res & (1 << 7)) != 0;
         res
+    }
+
+    fn eor(&mut self, mask: u8) {
+        self.reg_a ^= mask;
+
+        self.reg_status.zero = self.reg_a == 0;
+        self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
     }
 
     fn inc(&mut self, val: u8) -> u8 {
