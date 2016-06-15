@@ -446,6 +446,14 @@ impl Cpu {
             self.time = 0;
             return;
         }
+        // ADC Absolute
+        if self.opcode == 0x6d && self.time == 4 {
+            let val = interconnect.read_byte(self.address);
+            self.adc(val);
+            println!("{:04X}  {:02X} {:02X} {:02X}   ADC ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
         // STY Absolute
         if self.opcode == 0x8c && self.time == 4 {
             interconnect.write_byte(self.address, self.reg_y);
@@ -494,6 +502,38 @@ impl Cpu {
             self.reg_status.zero = val == 0;
             self.reg_status.negative = (val & (1 << 7)) != 0;
             println!("{:04X}  {:02X} {:02X} {:02X}   LDA ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        // CPY Absolute
+        if self.opcode == 0xcc && self.time == 4 {
+            let val = interconnect.read_byte(self.address);
+            self.cpy(val);
+            println!("{:04X}  {:02X} {:02X} {:02X}   CPY ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_y, self);
+            self.time = 0;
+            return;
+        }
+        // CMP Absolute
+        if self.opcode == 0xcd && self.time == 4 {
+            let val = interconnect.read_byte(self.address);
+            self.cmp(val);
+            println!("{:04X}  {:02X} {:02X} {:02X}   CMP ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        // CPX Absolute
+        if self.opcode == 0xec && self.time == 4 {
+            let val = interconnect.read_byte(self.address);
+            self.cpx(val);
+            println!("{:04X}  {:02X} {:02X} {:02X}   CPX ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_x, self);
+            self.time = 0;
+            return;
+        }
+        // SBC Absolute
+        if self.opcode == 0xed && self.time == 4 {
+            let val = interconnect.read_byte(self.address);
+            self.adc(!val);
+            println!("{:04X}  {:02X} {:02X} {:02X}   SBC ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
             self.time = 0;
             return;
         }
