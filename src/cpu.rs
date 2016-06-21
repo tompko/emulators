@@ -69,6 +69,13 @@ impl Cpu {
             return
         }
 
+        // NOP
+        if self.opcode == 0xea && self.time == 2 {
+            println!("{:04X}  {:02X}         NOP          {:?}", self.instr_pc, self.opcode, self);
+            self.time = 0;
+            return;
+        }
+
         if self.opcode == 0x4c && self.time == 2 {
             // T2 - JMP
             self.fetch = interconnect.read_byte(self.reg_pc);
@@ -725,6 +732,39 @@ impl Cpu {
             return;
         }
 
+        // Indirect Indexed Addressing
+        // TODO - these instructions should take an extra cycle if we cross a page boundary
+        if self.is_indirect_indexed(self.opcode) && self.time == 2 {
+            self.fetch = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
+            return;
+        }
+        if self.is_indirect_indexed(self.opcode) && self.time == 3 {
+            self.address = interconnect.read_byte(self.fetch as u16) as u16;
+            let val = self.fetch.wrapping_add(1);
+            self.fetch = val;
+            return;
+        }
+        if self.is_indirect_indexed(self.opcode) && self.time == 4 {
+            let addrhi = interconnect.read_byte(self.fetch as u16) as u16;
+            let address = (addrhi << 8) | self.address;
+            self.address = address.wrapping_add(self.reg_y as u16);
+            print!("{0:04X}  {1:02X} {2:02X}      {3} (${2:02X}, X) @ {2:02X} = ", self.instr_pc, self.opcode, self.fetch, self.opcode_name(self.opcode));
+            return;
+        }
+        // LDA indirect indexed
+        if self.opcode == 0xb1 && self.time == 5 {
+            let value = interconnect.read_byte(self.address);
+            self.reg_a = value;
+            self.reg_status.zero = value == 0;
+            self.reg_status.negative = (value & (1 << 7)) != 0;
+
+            println!("{:04X} = {:02X}   {:?}", self.address, value, self);
+            self.time = 0;
+            return;
+        }
+
+
         // JSR
         if self.opcode == 0x20 && self.time == 2{
             self.fetch = interconnect.read_byte(self.reg_pc);
@@ -809,12 +849,6 @@ impl Cpu {
             return;
         }
 
-        // NOP
-        if self.opcode == 0xea && self.time == 2 {
-            println!("{:04X}  {:02X}         NOP          {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
         // SEC
         if self.opcode == 0x38 && self.time == 2 {
             self.reg_status.carry = true;
@@ -1256,6 +1290,7 @@ impl Cpu {
             0x90 => "BCC",
             0xa1 => "LDA",
             0xb0 => "BCS",
+            0xb1 => "LDA",
             0xc1 => "CMP",
             0xd0 => "BNE",
             0xe1 | 0xe9 => "SBC",
