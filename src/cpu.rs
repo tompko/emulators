@@ -1098,6 +1098,10 @@ impl Cpu {
         opcode & 1 == 1 && !opcode & 30 == 30
     }
 
+    fn is_indirect_indexed(&self, opcode: u8) -> bool {
+        opcode & 17 == 17 && !opcode & 14 == 14
+    }
+
     fn adc(&mut self, val: u8) {
         let acc = self.reg_a;
         let carry = if self.reg_status.carry { 1 } else { 0 };
