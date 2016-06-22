@@ -76,17 +76,47 @@ impl Cpu {
             return;
         }
 
+        // JMP absolute
         if self.opcode == 0x4c && self.time == 2 {
-            // T2 - JMP
             self.fetch = interconnect.read_byte(self.reg_pc);
             self.reg_pc += 1;
             return;
         }
         if self.opcode == 0x4c && self.time == 3 {
-            // T3 - JMP
             let pch = interconnect.read_byte(self.reg_pc);
             self.reg_pc = ((pch as u16) << 8) | (self.fetch as u16);
             println!("{:04X}  {:02X} {:02X} {:02X}   JMP ${:04X}     {:?}", self.instr_pc, self.opcode, self.fetch, pch, self.reg_pc, self);
+            self.time = 0;
+            return;
+        }
+        // JMP absolute indirect
+        if self.opcode == 0x6c && self.time == 2 {
+            self.address = interconnect.read_byte(self.reg_pc) as u16;
+            self.reg_pc += 1;
+            return;
+        }
+        if self.opcode == 0x6c && self.time == 3 {
+            let addrhi = interconnect.read_byte(self.reg_pc) as u16;
+            self.reg_pc += 1;
+            self.address |= addrhi << 8;
+            return
+        }
+        if self.opcode == 0x6c && self.time == 4 {
+            self.fetch = interconnect.read_byte(self.address);
+
+            // A quirk in the 6502 means the next fetch always takes place on 
+            // the same page
+            let addrlo = (self.address & 0xff) as u8;
+            let addrhi = self.address >> 8;
+            let addrlo = addrlo.wrapping_add(1);
+            self.address = (addrhi << 8) | (addrlo as u16);
+
+            return;
+        }
+        if self.opcode == 0x6c && self.time == 5 {
+            let addrhi = interconnect.read_byte(self.address) as u16;
+            self.reg_pc = (addrhi << 8) | (self.fetch as u16);
+            println!("{:04X}  {:02X} {:02X} {:02X}   JMP (${:04X}) = {:04X}     {:?}", self.instr_pc, self.opcode, self.address & 0xff, self.address >> 8, self.address, self.reg_pc, self);
             self.time = 0;
             return;
         }
@@ -641,6 +671,100 @@ impl Cpu {
             return;
         }
 
+        // Absolute Indexed (Y) Addressing
+        // TODO - These instructions should be 5 cycles if we cross a page boundary
+        if self.is_absolute_y(self.opcode) && self.time == 2 {
+            self.address = interconnect.read_byte(self.reg_pc) as u16;
+            self.reg_pc += 1;
+            return;
+        }
+        if self.is_absolute_y(self.opcode) && self.time == 3 {
+            let addrhi = interconnect.read_byte(self.reg_pc) as u16;
+            self.reg_pc += 1;
+            self.address |= addrhi << 8;
+            return;
+        }
+        // ORA absolute indexed y
+        if self.opcode == 0x19 && self.time == 4 {
+            let addr = self.address.wrapping_add(self.reg_y as u16);
+            let value = interconnect.read_byte(addr);
+            self.ora(value);
+
+            println!("{:04X}  {:02X} {:02X} {:02X}   ORA ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        // AND absolute indexed y
+        if self.opcode == 0x39 && self.time == 4 {
+            let addr = self.address.wrapping_add(self.reg_y as u16);
+            let value = interconnect.read_byte(addr);
+            self.and(value);
+
+            println!("{:04X}  {:02X} {:02X} {:02X}   AND ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        // EOR absolute indexed y
+        if self.opcode == 0x59 && self.time == 4 {
+            let addr = self.address.wrapping_add(self.reg_y as u16);
+            let value = interconnect.read_byte(addr);
+            self.eor(value);
+
+            println!("{:04X}  {:02X} {:02X} {:02X}   EOR ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        // ADC absolute indexed y
+        if self.opcode == 0x79 && self.time == 4 {
+            let addr = self.address.wrapping_add(self.reg_y as u16);
+            let value = interconnect.read_byte(addr);
+            self.adc(value);
+
+            println!("{:04X}  {:02X} {:02X} {:02X}   ADC ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        // STA absolute indexed y
+        if self.opcode == 0x99 && self.time == 4 {
+            let addr = self.address.wrapping_add(self.reg_y as u16);
+            interconnect.write_byte(addr, self.reg_a);
+
+            println!("{:04X}  {:02X} {:02X} {:02X}   LDA ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        // LDA absolute indexed y
+        if self.opcode == 0xb9 && self.time == 4 {
+            let addr = self.address.wrapping_add(self.reg_y as u16);
+            self.reg_a = interconnect.read_byte(addr);
+            self.reg_status.zero = self.reg_a == 0;
+            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+
+            println!("{:04X}  {:02X} {:02X} {:02X}   LDA ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        // CMP absolute indexed y
+        if self.opcode == 0xd9 && self.time == 4 {
+            let addr = self.address.wrapping_add(self.reg_y as u16);
+            let value = interconnect.read_byte(addr);
+            self.cmp(value);
+
+            println!("{:04X}  {:02X} {:02X} {:02X}   CMP ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+        // SBC absolute indexed y
+        if self.opcode == 0xf9 && self.time == 4 {
+            let addr = self.address.wrapping_add(self.reg_y as u16);
+            let value = interconnect.read_byte(addr);
+            self.adc(!value);
+
+            println!("{:04X}  {:02X} {:02X} {:02X}   SBC ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+
         // Indexed Indirect Addressing
         if self.is_indexed_indirect(self.opcode) && self.time == 2 {
             self.fetch = interconnect.read_byte(self.reg_pc);
@@ -817,6 +941,19 @@ impl Cpu {
             self.time = 0;
             return;
         }
+        // STA indirect indexed
+        if self.opcode == 0x91 && self.time == 5 {
+            // This cycle is used to fix up the address if a page boundary was crossed
+            return;
+        }
+        if self.opcode == 0x91 && self.time == 6 {
+            interconnect.write_byte(self.address, self.reg_a);
+
+            println!("{:04X} = {:02X}   {:?}", self.address, self.reg_a, self);
+            self.time = 0;
+            return;
+        }
+
 
 
         // JSR
@@ -1178,6 +1315,10 @@ impl Cpu {
         opcode & 12 == 12 && !opcode & 16 == 16
     }
 
+    fn is_absolute_y(&self, opcode: u8) -> bool {
+        opcode & 25 == 25 && !opcode & 6 == 6
+    }
+
     fn is_zero_page(&self, opcode: u8) -> bool {
         opcode & 4 == 4 && !opcode & 24 == 24
     }
@@ -1345,6 +1486,7 @@ impl Cpu {
             0x70 => "BVS",
             0x81 => "STA",
             0x90 => "BCC",
+            0x91 => "STA",
             0xa1 => "LDA",
             0xb0 => "BCS",
             0xb1 => "LDA",
