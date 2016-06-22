@@ -243,7 +243,7 @@ impl Cpu {
         }
         if self.opcode == 0x05 && self.time == 3 {
             let mask = interconnect.read_byte(self.fetch as u16);
-            let val = self.ora(mask);
+            self.ora(mask);
 
             println!("{:04X}  {:02X} {:02X}      ORA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, mask, self);
             self.time = 0;
@@ -752,12 +752,66 @@ impl Cpu {
             print!("{0:04X}  {1:02X} {2:02X}      {3} (${2:02X}, X) @ {2:02X} = ", self.instr_pc, self.opcode, self.fetch, self.opcode_name(self.opcode));
             return;
         }
+        // ORA indirect indexed
+        if self.opcode == 0x11 && self.time == 5 {
+            let value = interconnect.read_byte(self.address);
+            self.ora(value);
+
+            println!("{:04X} = {:02X}   {:?}", self.address, value, self);
+            self.time = 0;
+            return;
+        }
+        // AND indirect indexed
+        if self.opcode == 0x31 && self.time == 5 {
+            let value = interconnect.read_byte(self.address);
+            self.and(value);
+
+            println!("{:04X} = {:02X}   {:?}", self.address, value, self);
+            self.time = 0;
+            return;
+        }
+        // EOR indirect indexed
+        if self.opcode == 0x51 && self.time == 5 {
+            let value = interconnect.read_byte(self.address);
+            self.eor(value);
+
+            println!("{:04X} = {:02X}   {:?}", self.address, value, self);
+            self.time = 0;
+            return;
+        }
+        // ADC indirect indexed
+        if self.opcode == 0x71 && self.time == 5 {
+            let value = interconnect.read_byte(self.address);
+            self.adc(value);
+
+            println!("{:04X} = {:02X}   {:?}", self.address, value, self);
+            self.time = 0;
+            return;
+        }
         // LDA indirect indexed
         if self.opcode == 0xb1 && self.time == 5 {
             let value = interconnect.read_byte(self.address);
             self.reg_a = value;
             self.reg_status.zero = value == 0;
             self.reg_status.negative = (value & (1 << 7)) != 0;
+
+            println!("{:04X} = {:02X}   {:?}", self.address, value, self);
+            self.time = 0;
+            return;
+        }
+        // CMP indirect indexed
+        if self.opcode == 0xd1 && self.time == 5 {
+            let value = interconnect.read_byte(self.address);
+            self.cmp(value);
+
+            println!("{:04X} = {:02X}   {:?}", self.address, value, self);
+            self.time = 0;
+            return;
+        }
+        // SBC indirect indexed
+        if self.opcode == 0xf1 && self.time == 5 {
+            let value = interconnect.read_byte(self.address);
+            self.adc(!value);
 
             println!("{:04X} = {:02X}   {:?}", self.address, value, self);
             self.time = 0;
@@ -1280,11 +1334,14 @@ impl Cpu {
         match opcode {
             0x01 | 0x0d => "ORA",
             0x10 => "BPL",
+            0x11 => "ORA",
             0x21 => "AND",
             0x30 => "BMI",
+            0x31 => "AND",
             0x41 => "EOR",
             0x50 => "BVC",
-            0x61 | 0x69 => "ADC",
+            0x51 => "EOR",
+            0x61 | 0x69 | 0x71 => "ADC",
             0x70 => "BVS",
             0x81 => "STA",
             0x90 => "BCC",
@@ -1293,8 +1350,10 @@ impl Cpu {
             0xb1 => "LDA",
             0xc1 => "CMP",
             0xd0 => "BNE",
+            0xd1 => "CMP",
             0xe1 | 0xe9 => "SBC",
             0xf0 => "BEQ",
+            0xf1 => "SBC",
             _ => panic!("Unrecognised instruction {:02X}", opcode),
         }
     }
