@@ -138,9 +138,7 @@ impl Cpu {
         if self.opcode == 0xa0 && self.time == 2 {
             let value = interconnect.read_byte(self.reg_pc);
             self.reg_pc += 1;
-            self.reg_y = value;
-            self.reg_status.zero = value == 0;
-            self.reg_status.negative = (value & (1 << 7)) != 0;
+            self.ldy(value);
 
             println!("{:04X}  {:02X} {:02X}      LDY #${:02X}      {:?}", self.instr_pc, self.opcode, self.reg_y, self.reg_y, self);
             self.time = 0;
@@ -149,10 +147,8 @@ impl Cpu {
         // LDA
         if self.opcode == 0xa9 && self.time == 2 {
             let value = interconnect.read_byte(self.reg_pc);
-            self.reg_a = value;
             self.reg_pc += 1;
-            self.reg_status.zero = value == 0;
-            self.reg_status.negative = (value & (1 << 7)) != 0;
+            self.lda(value);
 
             println!("{:04X}  {:02X} {:02X}      LDA #${:02X}      {:?}", self.instr_pc, self.opcode, self.reg_a, self.reg_a, self);
             self.time = 0;
@@ -368,18 +364,15 @@ impl Cpu {
         }
         if self.opcode == 0xa4 && self.time == 3 {
             let val = interconnect.read_byte(self.fetch as u16);
-            self.reg_y = val;
-            self.reg_status.zero = val == 0;
-            self.reg_status.negative = (val & (1 << 7)) != 0;
+            self.ldy(val);
+
             println!("{:04X}  {:02X} {:02X}      LDY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_y, self);
             self.time = 0;
             return;
         }
         if self.opcode == 0xa5 && self.time == 3 {
             let val = interconnect.read_byte(self.fetch as u16);
-            self.reg_a = val;
-            self.reg_status.zero = val == 0;
-            self.reg_status.negative = (val & (1 << 7)) != 0;
+            self.lda(val);
             println!("{:04X}  {:02X} {:02X}      LDA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_a, self);
             self.time = 0;
             return;
@@ -435,6 +428,53 @@ impl Cpu {
             let val = self.inc(val);
             interconnect.write_byte(self.fetch as u16, val);
             println!("{:04X}  {:02X} {:02X}      INC ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
+            self.time = 0;
+            return;
+        }
+
+        // Zero Page Indexed addressing
+        if self.is_zero_indexed(self.opcode) && self.time == 2 {
+            self.address = interconnect.read_byte(self.reg_pc) as u16;
+            self.reg_pc = self.reg_pc.wrapping_add(1);
+            return
+        }
+        if self.is_zero_indexed(self.opcode) && self.time == 3 {
+            self.address = self.address.wrapping_add(self.reg_x as u16);
+            self.address &= 0xff;
+            return
+        }
+        // ORA zero page indexed
+        if self.opcode == 0x15 && self.time == 4 {
+            let value = interconnect.read_byte(self.address);
+            self.ora(value);
+
+            println!("{:04X}  {:02X} {:02X}      ORA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
+            self.time = 0;
+            return;
+        }
+        // AND zero page indexed
+        if self.opcode == 0x35 && self.time == 4 {
+            let value = interconnect.read_byte(self.address);
+            self.and(value);
+
+            println!("{:04X}  {:02X} {:02X}      AND ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
+            self.time = 0;
+            return;
+        }
+        // STY zero page indexed
+        if self.opcode == 0x94 && self.time == 4 {
+            interconnect.write_byte(self.address, self.reg_y);
+
+            println!("{:04X}  {:02X} {:02X}      STY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, self.reg_y, self);
+            self.time = 0;
+            return;
+        }
+        // LDY zero page indexed
+        if self.opcode == 0xb4 && self.time == 4 {
+            let value = interconnect.read_byte(self.address);
+            self.ldy(value);
+
+            println!("{:04X}  {:02X} {:02X}      LDY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
             self.time = 0;
             return;
         }
@@ -579,9 +619,7 @@ impl Cpu {
         // LDY Absolute
         if self.opcode == 0xac && self.time == 4 {
             let val = interconnect.read_byte(self.address);
-            self.reg_y = val;
-            self.reg_status.zero = val == 0;
-            self.reg_status.negative = (val & (1 << 7)) != 0;
+            self.ldy(val);
             println!("{:04X}  {:02X} {:02X} {:02X}   LDY ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_y, self);
             self.time = 0;
             return;
@@ -599,9 +637,7 @@ impl Cpu {
         // LDA Absolute
         if self.opcode == 0xad && self.time == 4 {
             let val = interconnect.read_byte(self.address);
-            self.reg_a = val;
-            self.reg_status.zero = val == 0;
-            self.reg_status.negative = (val & (1 << 7)) != 0;
+            self.lda(val);
             println!("{:04X}  {:02X} {:02X} {:02X}   LDA ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
             self.time = 0;
             return;
@@ -736,9 +772,8 @@ impl Cpu {
         // LDA absolute indexed y
         if self.opcode == 0xb9 && self.time == 4 {
             let addr = self.address.wrapping_add(self.reg_y as u16);
-            self.reg_a = interconnect.read_byte(addr);
-            self.reg_status.zero = self.reg_a == 0;
-            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            let value = interconnect.read_byte(addr);
+            self.lda(value);
 
             println!("{:04X}  {:02X} {:02X} {:02X}   LDA ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
             self.time = 0;
@@ -830,9 +865,8 @@ impl Cpu {
         }
         // LDA
         if self.opcode == 0xa1 && self.time == 6 {
-            self.reg_a = interconnect.read_byte(self.address);
-            self.reg_status.zero = self.reg_a == 0;
-            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
+            let value = interconnect.read_byte(self.address);
+            self.lda(value);
 
             println!("{:04X} = {:02X}   {:?}", self.address, self.reg_a, self);
             self.time = 0;
@@ -915,9 +949,7 @@ impl Cpu {
         // LDA indirect indexed
         if self.opcode == 0xb1 && self.time == 5 {
             let value = interconnect.read_byte(self.address);
-            self.reg_a = value;
-            self.reg_status.zero = value == 0;
-            self.reg_status.negative = (value & (1 << 7)) != 0;
+            self.lda(value);
 
             println!("{:04X} = {:02X}   {:?}", self.address, value, self);
             self.time = 0;
@@ -1323,6 +1355,10 @@ impl Cpu {
         opcode & 4 == 4 && !opcode & 24 == 24
     }
 
+    fn is_zero_indexed(&self, opcode: u8) -> bool {
+        opcode & 20 == 20 && !opcode & 10 == 10
+    }
+
     fn is_indexed_indirect(&self, opcode: u8) -> bool {
         opcode & 1 == 1 && !opcode & 30 == 30
     }
@@ -1416,6 +1452,18 @@ impl Cpu {
         self.reg_status.zero = res == 0;
         self.reg_status.negative = (res & (1 << 7)) != 0;
         res
+    }
+
+    fn lda(&mut self, val: u8) {
+        self.reg_a = val;
+        self.reg_status.zero = val == 0;
+        self.reg_status.negative = (val & (1 << 7)) != 0;
+    }
+
+    fn ldy(&mut self, val: u8) {
+        self.reg_y = val;
+        self.reg_status.zero = val == 0;
+        self.reg_status.negative = (val & (1 << 7)) != 0;
     }
 
     fn lsr(&mut self, val: u8) -> u8 {
