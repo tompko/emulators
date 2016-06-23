@@ -461,11 +461,54 @@ impl Cpu {
             self.time = 0;
             return;
         }
+        // EOR zero page indexed
+        if self.opcode == 0x55 && self.time == 4 {
+            let value = interconnect.read_byte(self.address);
+            self.eor(value);
+
+            println!("{:04X}  {:02X} {:02X}      EOR ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
+            self.time = 0;
+            return;
+        }
+        // LSR zero page indexed
+        if self.opcode == 0x56 && self.time == 4 {
+            self.fetch = interconnect.read_byte(self.address);
+            return;
+        }
+        if self.opcode == 0x56 && self.time == 5 {
+            let value = self.fetch;
+            self.fetch = self.lsr(value);
+            return;
+        }
+        if self.opcode == 0x56 && self.time == 6 {
+            interconnect.write_byte(self.address, self.fetch);
+
+            println!("{:04X}  {:02X} {:02X}      LSR ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, self.fetch, self);
+            self.time = 0;
+            return;
+        }
+        // ADC zero page indexed
+        if self.opcode == 0x75 && self.time == 4 {
+            let value = interconnect.read_byte(self.address);
+            self.adc(value);
+
+            println!("{:04X}  {:02X} {:02X}      ADC ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
+            self.time = 0;
+            return;
+        }
         // STY zero page indexed
         if self.opcode == 0x94 && self.time == 4 {
             interconnect.write_byte(self.address, self.reg_y);
 
             println!("{:04X}  {:02X} {:02X}      STY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, self.reg_y, self);
+            self.time = 0;
+            return;
+        }
+        // STA zero page indexed
+        if self.opcode == 0x95 && self.time == 4 {
+            interconnect.write_byte(self.address, self.reg_a);
+
+            println!("{:04X}  {:02X} {:02X}      STA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, self.reg_a, self);
             self.time = 0;
             return;
         }
@@ -475,6 +518,33 @@ impl Cpu {
             self.ldy(value);
 
             println!("{:04X}  {:02X} {:02X}      LDY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
+            self.time = 0;
+            return;
+        }
+        // LDA zero page indexed
+        if self.opcode == 0xb5 && self.time == 4 {
+            let value = interconnect.read_byte(self.address);
+            self.lda(value);
+
+            println!("{:04X}  {:02X} {:02X}      LDA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
+            self.time = 0;
+            return;
+        }
+        // CMP zero page indexed
+        if self.opcode == 0xd5 && self.time == 4 {
+            let value = interconnect.read_byte(self.address);
+            self.cmp(value);
+
+            println!("{:04X}  {:02X} {:02X}      CMP ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
+            self.time = 0;
+            return;
+        }
+        // SBC zero page indexed
+        if self.opcode == 0xf5 && self.time == 4 {
+            let value = interconnect.read_byte(self.address);
+            self.adc(!value);
+
+            println!("{:04X}  {:02X} {:02X}      SBC ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
             self.time = 0;
             return;
         }
@@ -1356,7 +1426,7 @@ impl Cpu {
     }
 
     fn is_zero_indexed(&self, opcode: u8) -> bool {
-        opcode & 20 == 20 && !opcode & 10 == 10
+        (opcode & 20 == 20 && !opcode & 10 == 10) || (opcode == 0x56)
     }
 
     fn is_indexed_indirect(&self, opcode: u8) -> bool {
