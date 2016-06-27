@@ -452,12 +452,46 @@ impl Cpu {
             self.time = 0;
             return;
         }
+        // ASL zero page indexed
+        if self.opcode == 0x16 && self.time == 4 {
+            self.fetch = interconnect.read_byte(self.address);
+            return;
+        }
+        if self.opcode == 0x16 && self.time == 5 {
+            let value = self.fetch;
+            self.fetch = self.asl(value);
+            return;
+        }
+        if self.opcode == 0x16 && self.time == 6 {
+            interconnect.write_byte(self.address, self.fetch);
+
+            println!("{:04X}  {:02X} {:02X}      ASL ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, self.fetch, self);
+            self.time = 0;
+            return;
+        }
         // AND zero page indexed
         if self.opcode == 0x35 && self.time == 4 {
             let value = interconnect.read_byte(self.address);
             self.and(value);
 
             println!("{:04X}  {:02X} {:02X}      AND ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
+            self.time = 0;
+            return;
+        }
+        // ASL zero page indexed
+        if self.opcode == 0x36 && self.time == 4 {
+            self.fetch = interconnect.read_byte(self.address);
+            return;
+        }
+        if self.opcode == 0x36 && self.time == 5 {
+            let value = self.fetch;
+            self.fetch = self.rol(value);
+            return;
+        }
+        if self.opcode == 0x36 && self.time == 6 {
+            interconnect.write_byte(self.address, self.fetch);
+
+            println!("{:04X}  {:02X} {:02X}      ROL ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, self.fetch, self);
             self.time = 0;
             return;
         }
@@ -493,6 +527,23 @@ impl Cpu {
             self.adc(value);
 
             println!("{:04X}  {:02X} {:02X}      ADC ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
+            self.time = 0;
+            return;
+        }
+        // ASL zero page indexed
+        if self.opcode == 0x76 && self.time == 4 {
+            self.fetch = interconnect.read_byte(self.address);
+            return;
+        }
+        if self.opcode == 0x76 && self.time == 5 {
+            let value = self.fetch;
+            self.fetch = self.ror(value);
+            return;
+        }
+        if self.opcode == 0x76 && self.time == 6 {
+            interconnect.write_byte(self.address, self.fetch);
+
+            println!("{:04X}  {:02X} {:02X}      ROR ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, self.fetch, self);
             self.time = 0;
             return;
         }
@@ -539,12 +590,46 @@ impl Cpu {
             self.time = 0;
             return;
         }
+        // DEC zero page indexed
+        if self.opcode == 0xd6 && self.time == 4 {
+            self.fetch = interconnect.read_byte(self.address);
+            return;
+        }
+        if self.opcode == 0xd6 && self.time == 5 {
+            let value = self.fetch;
+            self.fetch = self.dec(value);
+            return;
+        }
+        if self.opcode == 0xd6 && self.time == 6 {
+            interconnect.write_byte(self.address, self.fetch);
+
+            println!("{:04X}  {:02X} {:02X}      DEC ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, self.fetch, self);
+            self.time = 0;
+            return;
+        }
         // SBC zero page indexed
         if self.opcode == 0xf5 && self.time == 4 {
             let value = interconnect.read_byte(self.address);
             self.adc(!value);
 
             println!("{:04X}  {:02X} {:02X}      SBC ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
+            self.time = 0;
+            return;
+        }
+        // INC zero page indexed
+        if self.opcode == 0xf6 && self.time == 4 {
+            self.fetch = interconnect.read_byte(self.address);
+            return;
+        }
+        if self.opcode == 0xf6 && self.time == 5 {
+            let value = self.fetch;
+            self.fetch = self.inc(value);
+            return;
+        }
+        if self.opcode == 0xf6 && self.time == 6 {
+            interconnect.write_byte(self.address, self.fetch);
+
+            println!("{:04X}  {:02X} {:02X}      INC ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, self.fetch, self);
             self.time = 0;
             return;
         }
@@ -1426,7 +1511,13 @@ impl Cpu {
     }
 
     fn is_zero_indexed(&self, opcode: u8) -> bool {
-        (opcode & 20 == 20 && !opcode & 10 == 10) || (opcode == 0x56)
+        (opcode & 20 == 20 && !opcode & 10 == 10) || 
+            (opcode == 0x16) || 
+            (opcode == 0x36) || 
+            (opcode == 0x56) ||
+            (opcode == 0x76) ||
+            (opcode == 0xd6) ||
+            (opcode == 0xf6)
     }
 
     fn is_indexed_indirect(&self, opcode: u8) -> bool {
