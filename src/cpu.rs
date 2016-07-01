@@ -60,1272 +60,527 @@ impl Cpu {
     #[allow(unknown_lints)]
     #[allow(cyclomatic_complexity)]
     fn execute_cycle(&mut self, interconnect: &mut Interconnect) {
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x00 == 0x00 && self.time == 0 {
+            // T0A
+            unimplemented!();
+        }
+        if self.opcode & 0x84 == 0x84 && !self.opcode & 0x60 == 0x60 && g & 3 == 0 {
+            // STY
+            unimplemented!();
+        }
+        if self.opcode & 0x10 == 0x10 && !self.opcode & 0x0c == 0x0c && g & 1 == 1 && self.time == 3 {
+            // T3INDYA
+            unimplemented!();
+        }
+        if self.opcode & 0x18 == 0x18 && !self.opcode & 0x04 == 0x04 && g & 1 == 1 && self.time == 2 {
+            // T2ABSY
+            unimplemented!();
+        }
+        if self.opcode & 0xc0 == 0xc0 && !self.opcode & 0x30 == 0x30 && g & 3 == 0 && self.time == 0 {
+            // T0CPYINY
+            unimplemented!();
+        }
+        if self.opcode & 0x98 == 0x98 && !self.opcode & 0x64 == 0x64 && g & 3 == 0 && self.time == 0 {
+            // T0TYAA
+            unimplemented!();
+        }
+        if self.opcode & 0x88 == 0x88 && !self.opcode & 0x34 == 0x34 && g & 3 == 0 && self.time == 0 {
+            // T0DEYINY
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0xfc == 0xfc && g & 3 == 0 && self.time == 5 {
+            // T5INT
+            unimplemented!();
+        }
+        if self.opcode & 0x80 == 0x80 && !self.opcode & 0x40 == 0x40 && g & 2 == 2 {
+            // LDXSDX
+            unimplemented!();
+        }
+        if self.opcode & 0x14 == 0x14 && !self.opcode & 0x00 == 0x00 && self.time == 2 {
+            // T2ANYX
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x1c == 0x1c && g & 1 == 1 && self.time == 2 {
+            // T2XIND
+            unimplemented!();
+        }
+        if self.opcode & 0x88 == 0x88 && !self.opcode & 0x74 == 0x74 && g & 2 == 2 && self.time == 0 {
+            // T0TXAA
+            unimplemented!();
+        }
+        if self.opcode & 0xc8 == 0xc8 && !self.opcode & 0x34 == 0x34 && g & 2 == 2 && self.time == 0 {
+            // T0DEX
+            unimplemented!();
+        }
+        if self.opcode & 0xe0 == 0xe0 && !self.opcode & 0x10 == 0x10 && g & 3 == 0 && self.time == 0 {
+            // T0CPXINX
+            unimplemented!();
+        }
+        if self.opcode & 0x98 == 0x98 && !self.opcode & 0x64 == 0x64 && g & 2 == 2 && self.time == 0 {
+            // T0TXS
+            unimplemented!();
+        }
+        if self.opcode & 0x80 == 0x80 && !self.opcode & 0x60 == 0x60 && g & 2 == 2 {
+            // SDX
+            unimplemented!();
+        }
+        if self.opcode & 0xa0 == 0xa0 && !self.opcode & 0x40 == 0x40 && g & 2 == 2 && self.time == 0 {
+            // T0TALDTSX
+            unimplemented!();
+        }
+        if self.opcode & 0xc8 == 0xc8 && !self.opcode & 0x34 == 0x34 && g & 2 == 2 && self.time == 1 {
+            // T1DEX
+            unimplemented!();
+        }
+        if self.opcode & 0xe8 == 0xe8 && !self.opcode & 0x14 == 0x14 && g & 3 == 0 && self.time == 1 {
+            // T1INX
+            unimplemented!();
+        }
+        if self.opcode & 0xb8 == 0xb8 && !self.opcode & 0x44 == 0x44 && g & 2 == 2 && self.time == 0 {
+            // T0TSX
+            unimplemented!();
+        }
+        if self.opcode & 0x88 == 0x88 && !self.opcode & 0x34 == 0x34 && g & 3 == 0 && self.time == 1 {
+            // T1DEYINY
+            unimplemented!();
+        }
+        if self.opcode & 0xa4 == 0xa4 && !self.opcode & 0x40 == 0x40 && g & 3 == 0 && self.time == 0 {
+            // T0LDY1
+            unimplemented!();
+        }
+        if self.opcode & 0xa0 == 0xa0 && !self.opcode & 0x50 == 0x50 && g & 3 == 0 && self.time == 0 {
+            // T0LDY2TAY
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x94 == 0x94 && g & 3 == 0 && self.time == 2 {
+            // CCC
+            unimplemented!();
+        }
+        if self.opcode & 0x20 == 0x20 && !self.opcode & 0xdc == 0xdc && g & 3 == 0 && self.time == 0 {
+            // T0JSR
+            unimplemented!();
+        }
+        if self.opcode & 0x08 == 0x08 && !self.opcode & 0xb4 == 0xb4 && g & 3 == 0 && self.time == 0 {
+            // T0PSHASHP
+            unimplemented!();
+        }
+        if self.opcode & 0x60 == 0x60 && !self.opcode & 0x9c == 0x9c && g & 3 == 0 && self.time == 4 {
+            // T4RTS
+            unimplemented!();
+        }
+        if self.opcode & 0x28 == 0x28 && !self.opcode & 0x94 == 0x94 && g & 3 == 0 && self.time == 3 {
+            // T3PLAPLPA
+            unimplemented!();
+        }
+        if self.opcode & 0x40 == 0x40 && !self.opcode & 0xbc == 0xbc && g & 3 == 0 && self.time == 5 {
+            // T5RTI
+            unimplemented!();
+        }
+        if self.opcode & 0x60 == 0x60 && !self.opcode & 0x80 == 0x80 && g & 2 == 2 {
+            // RORRORA
+            unimplemented!();
+        }
+        if self.opcode & 0x20 == 0x20 && !self.opcode & 0xdc == 0xdc && g & 3 == 0 && self.time == 2 {
+            // T2JSR
+            unimplemented!();
+        }
+        if self.opcode & 0x4c == 0x4c && !self.opcode & 0x90 == 0x90 && g & 3 == 0 {
+            // JMPA
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x00 == 0x00 && self.time == 2 {
+            // T2
+            unimplemented!();
+        }
+        if self.opcode & 0x0c == 0x0c && !self.opcode & 0x10 == 0x10 && self.time == 2 {
+            // T2EXT
+            unimplemented!();
+        }
+        if self.opcode & 0x40 == 0x40 && !self.opcode & 0x9c == 0x9c && g & 3 == 0 {
+            // RTIRTS
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x1c == 0x1c && g & 1 == 1 && self.time == 4 {
+            // T4XIND
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x08 == 0x08 && self.time == 2 {
+            // T2NANYABS
+            unimplemented!();
+        }
+        if self.opcode & 0x40 == 0x40 && !self.opcode & 0xbc == 0xbc && g & 3 == 0 && self.time == 4 {
+            // T4RTIA
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0xdc == 0xdc && g & 3 == 0 && self.time == 4 {
+            // T4JSRINT
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x90 == 0x90 && g & 3 == 0 && self.time == 3 {
+            // NAME1:T3_RTI_RTS_JSR_JMP_INT_PULA_PUPL
+            unimplemented!();
+        }
+        if self.opcode & 0x10 == 0x10 && !self.opcode & 0x0c == 0x0c && g & 1 == 1 && self.time == 3 {
+            // T3INDYB
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x1c == 0x1c && g & 1 == 1 && self.time == 3 {
+            // T3XIND
+            unimplemented!();
+        }
+        if self.opcode & 0x10 == 0x10 && !self.opcode & 0x0c == 0x0c && g & 1 == 1 && self.time == 4 {
+            // T4INDYA
+            unimplemented!();
+        }
+        if self.opcode & 0x10 == 0x10 && !self.opcode & 0x0c == 0x0c && g & 1 == 1 && self.time == 2 {
+            // T2INDY
+            unimplemented!();
+        }
+        if self.opcode & 0x18 == 0x18 && !self.opcode & 0x00 == 0x00 && self.time == 3 {
+            // T3ABSXYA
+            unimplemented!();
+        }
+        if self.opcode & 0x28 == 0x28 && !self.opcode & 0x94 == 0x94 && g & 3 == 0 {
+            // PULAPULP
+            unimplemented!();
+        }
+        if self.opcode & 0xe0 == 0xe0 && !self.opcode & 0x00 == 0x00 && g & 2 == 2 {
+            // INC
+            unimplemented!();
+        }
+        if self.opcode & 0x40 == 0x40 && !self.opcode & 0xa0 == 0xa0 && g & 1 == 1 && self.time == 0 {
+            // T0EOR
+            unimplemented!();
+        }
+        if self.opcode & 0xc0 == 0xc0 && !self.opcode & 0x20 == 0x20 && g & 1 == 1 && self.time == 0 {
+            // T0CMP
+            unimplemented!();
+        }
+        if self.opcode & 0xc0 == 0xc0 && !self.opcode & 0x10 == 0x10 && g & 3 == 0 && self.time == 0 {
+            // NAME2:T0_CPX_CPY_INX_INY
+            unimplemented!();
+        }
+        if self.opcode & 0x60 == 0x60 && !self.opcode & 0x00 == 0x00 && g & 1 == 1 && self.time == 0 {
+            // T0ADCSBC
+            unimplemented!();
+        }
+        if self.opcode & 0xe0 == 0xe0 && !self.opcode & 0x00 == 0x00 && g & 1 == 1 && self.time == 0 {
+            // T0SBC
+            unimplemented!();
+        }
+        if self.opcode & 0x20 == 0x20 && !self.opcode & 0xc0 == 0xc0 && g & 2 == 2 {
+            // ROLROLA
+            unimplemented!();
+        }
+        if self.opcode & 0x4c == 0x4c && !self.opcode & 0x90 == 0x90 && g & 3 == 0 && self.time == 3 {
+            // T3JMP
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0xe0 == 0xe0 && g & 1 == 1 && self.time == 0 {
+            // T0ORA
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0xc0 == 0xc0 && g & 2 == 2 {
+            // NAME8:ROL_ROLA_ASL_ASLA
+            unimplemented!();
+        }
+        if self.opcode & 0x98 == 0x98 && !self.opcode & 0x64 == 0x64 && g & 3 == 0 && self.time == 0 {
+            // T0TYAB
+            unimplemented!();
+        }
+        if self.opcode & 0x88 == 0x88 && !self.opcode & 0x74 == 0x74 && g & 2 == 2 && self.time == 0 {
+            // T0TXAB
+            unimplemented!();
+        }
+        if self.opcode & 0x60 == 0x60 && !self.opcode & 0x00 == 0x00 && g & 1 == 1 && self.time == 1 {
+            // T1ADCSBCA
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x80 == 0x80 && g & 1 == 1 && self.time == 1 {
+            // NAME7:T1_AND_EOR_OR_ADC
+            unimplemented!();
+        }
+        if self.opcode & 0x08 == 0x08 && !self.opcode & 0x94 == 0x94 && g & 2 == 2 && self.time == 1 {
+            // NAME4:T1_ASLA_ROLA_LSRA
+            unimplemented!();
+        }
+        if self.opcode & 0x68 == 0x68 && !self.opcode & 0x94 == 0x94 && g & 3 == 0 && self.time == 0 {
+            // T0PULA
+            unimplemented!();
+        }
+        if self.opcode & 0x18 == 0x18 && !self.opcode & 0x00 == 0x00 && self.time == 4 {
+            // T4ABSXYA
+            unimplemented!();
+        }
+        if self.opcode & 0x10 == 0x10 && !self.opcode & 0x0c == 0x0c && g & 1 == 1 && self.time == 5 {
+            // T5INDY
+            unimplemented!();
+        }
+        if self.opcode & 0xa0 == 0xa0 && !self.opcode & 0x40 == 0x40 && g & 1 == 1 && self.time == 0 {
+            // T0LDA
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x00 == 0x00 && g & 1 == 1 && self.time == 0 {
+            // T0G1
+            unimplemented!();
+        }
+        if self.opcode & 0x20 == 0x20 && !self.opcode & 0xc0 == 0xc0 && g & 1 == 1 && self.time == 0 {
+            // T0AND
+            unimplemented!();
+        }
+        if self.opcode & 0x24 == 0x24 && !self.opcode & 0xd0 == 0xd0 && g & 3 == 0 && self.time == 0 {
+            // T0BITA
+            unimplemented!();
+        }
+        if self.opcode & 0x08 == 0x08 && !self.opcode & 0x94 == 0x94 && g & 2 == 2 && self.time == 0 {
+            // NAME6:T0_ASLA_ROLA_LSRA
+            unimplemented!();
+        }
+        if self.opcode & 0xa8 == 0xa8 && !self.opcode & 0x54 == 0x54 && g & 2 == 2 && self.time == 0 {
+            // T0TAX
+            unimplemented!();
+        }
+        if self.opcode & 0xa8 == 0xa8 && !self.opcode & 0x54 == 0x54 && g & 3 == 0 && self.time == 0 {
+            // T0TAY
+            unimplemented!();
+        }
+        if self.opcode & 0x48 == 0x48 && !self.opcode & 0x94 == 0x94 && g & 2 == 2 && self.time == 0 {
+            // T0LSRA
+            unimplemented!();
+        }
+        if self.opcode & 0x40 == 0x40 && !self.opcode & 0x80 == 0x80 && g & 2 == 2 {
+            // LSRLSRA
+            unimplemented!();
+        }
+        if self.opcode & 0x20 == 0x20 && !self.opcode & 0xdc == 0xdc && g & 3 == 0 && self.time == 5 {
+            // T5JSRA
+            unimplemented!();
+        }
+        if self.opcode & 0x10 == 0x10 && !self.opcode & 0x0c == 0x0c && g & 3 == 0 && self.time == 2 {
+            // T2BR
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0xfc == 0xfc && g & 3 == 0 && self.time == 2 {
+            // T2INT
+            unimplemented!();
+        }
+        if self.opcode & 0x20 == 0x20 && !self.opcode & 0xdc == 0xdc && g & 3 == 0 && self.time == 3 {
+            // T3JSR
+            unimplemented!();
+        }
+        if self.opcode & 0x04 == 0x04 && !self.opcode & 0x08 == 0x08 && self.time == 2 {
+            // T2ANYZP
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x0c == 0x0c && g & 1 == 1 && self.time == 2 {
+            // T2ANYIND
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x00 == 0x00 && self.time == 4 {
+            // T4
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x00 == 0x00 && self.time == 3 {
+            // T3
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0xbc == 0xbc && g & 3 == 0 && self.time == 0 {
+            // T0RTIINT
+            unimplemented!();
+        }
+        if self.opcode & 0x4c == 0x4c && !self.opcode & 0x90 == 0x90 && g & 3 == 0 && self.time == 0 {
+            // T0JMP
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x94 == 0x94 && g & 3 == 0 && self.time == 2 {
+            // NAME3:T2_RTI_RTS_JSR_INT_PULA_PUPLP_PSHA_PSHP
+            unimplemented!();
+        }
+        if self.opcode & 0x60 == 0x60 && !self.opcode & 0x9c == 0x9c && g & 3 == 0 && self.time == 5 {
+            // T5RTS
+            unimplemented!();
+        }
+        if self.opcode & 0x08 == 0x08 && !self.opcode & 0x00 == 0x00 && self.time == 2 {
+            // T2ANYABS
+            unimplemented!();
+        }
+        if self.opcode & 0x80 == 0x80 && !self.opcode & 0x60 == 0x60 && g & 1 == 1 {
+            // STA
+            unimplemented!();
+        }
+        if self.opcode & 0x48 == 0x48 && !self.opcode & 0xb4 == 0xb4 && g & 3 == 0 && self.time == 2 {
+            // T2PSHA
+            unimplemented!();
+        }
+        if self.opcode & 0x10 == 0x10 && !self.opcode & 0x0c == 0x0c && g & 3 == 0 && self.time == 0 {
+            // T0BR
+            unimplemented!();
+        }
+        if self.opcode & 0x08 == 0x08 && !self.opcode & 0x94 == 0x94 && g & 3 == 0 {
+            // PSHPULA
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x1c == 0x1c && g & 1 == 1 && self.time == 5 {
+            // T5XIND
+            unimplemented!();
+        }
+        if self.opcode & 0x08 == 0x08 && !self.opcode & 0x00 == 0x00 && self.time == 3 {
+            // T3ANYABS
+            unimplemented!();
+        }
+        if self.opcode & 0x10 == 0x10 && !self.opcode & 0x0c == 0x0c && g & 1 == 1 && self.time == 4 {
+            // T4INDYB
+            unimplemented!();
+        }
+        if self.opcode & 0x18 == 0x18 && !self.opcode & 0x00 == 0x00 && self.time == 3 {
+            // T3ABSXYB
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0xbc == 0xbc && g & 3 == 0 {
+            // RTIINT
+            unimplemented!();
+        }
+        if self.opcode & 0x20 == 0x20 && !self.opcode & 0xdc == 0xdc && g & 3 == 0 {
+            // JSR
+            unimplemented!();
+        }
+        if self.opcode & 0x4c == 0x4c && !self.opcode & 0x90 == 0x90 && g & 3 == 0 {
+            // JMPB
+            unimplemented!();
+        }
+        if self.opcode & 0xc0 == 0xc0 && !self.opcode & 0x18 == 0x18 && g & 3 == 0 && self.time == 1 {
+            // T1CPX2CY2
+            unimplemented!();
+        }
+        if self.opcode & 0x08 == 0x08 && !self.opcode & 0xd4 == 0xd4 && g & 2 == 2 && self.time == 1 {
+            // T1ASLARLA
+            unimplemented!();
+        }
+        if self.opcode & 0xcc == 0xcc && !self.opcode & 0x10 == 0x10 && g & 3 == 0 && self.time == 1 {
+            // T1CPX1CY1
+            unimplemented!();
+        }
+        if self.opcode & 0xc0 == 0xc0 && !self.opcode & 0x20 == 0x20 && g & 1 == 1 && self.time == 1 {
+            // T1CMP
+            unimplemented!();
+        }
+        if self.opcode & 0x60 == 0x60 && !self.opcode & 0x00 == 0x00 && g & 1 == 1 && self.time == 1 {
+            // T1ADCSBCB
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0xc0 == 0xc0 && g & 2 == 2 {
+            // NAME5:ROL_ROLA_ASL_ASLA
+            unimplemented!();
+        }
+        if self.opcode & 0x40 == 0x40 && !self.opcode & 0x00 == 0x00 && g & 2 == 2 {
+            // LSRRADCIC
+            unimplemented!();
+        }
+        if self.opcode & 0x24 == 0x24 && !self.opcode & 0xd0 == 0xd0 && g & 3 == 0 && self.time == 1 {
+            // T1BIT
+            unimplemented!();
+        }
+        if self.opcode & 0x08 == 0x08 && !self.opcode & 0xf4 == 0xf4 && g & 3 == 0 && self.time == 2 {
+            // T2PSHP
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0xfc == 0xfc && g & 3 == 0 && self.time == 4 {
+            // T4INT
+            unimplemented!();
+        }
+        if self.opcode & 0x80 == 0x80 && !self.opcode & 0x60 == 0x60 {
+            // STASTYSTX
+            unimplemented!();
+        }
+        if self.opcode & 0x18 == 0x18 && !self.opcode & 0x00 == 0x00 && self.time == 4 {
+            // T4ABSXYB
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x0c == 0x0c && g & 1 == 1 && self.time == 5 {
+            // T5ANYIND
+            unimplemented!();
+        }
+        if self.opcode & 0x04 == 0x04 && !self.opcode & 0x18 == 0x18 && self.time == 2 {
+            // T2ZP
+            unimplemented!();
+        }
+        if self.opcode & 0x0c == 0x0c && !self.opcode & 0x10 == 0x10 && self.time == 3 {
+            // T3ABS
+            unimplemented!();
+        }
+        if self.opcode & 0x14 == 0x14 && !self.opcode & 0x08 == 0x08 && self.time == 3 {
+            // T3ZPX
+            unimplemented!();
+        }
+        if self.opcode & 0x08 == 0x08 && !self.opcode & 0xb4 == 0xb4 && g & 3 == 0 && self.time == 2 {
+            // T2PSHASHP
+            unimplemented!();
+        }
+        if self.opcode & 0x40 == 0x40 && !self.opcode & 0x9c == 0x9c && g & 3 == 0 && self.time == 5 {
+            // T5RTIRTS
+            unimplemented!();
+        }
+        if self.opcode & 0x20 == 0x20 && !self.opcode & 0xdc == 0xdc && g & 3 == 0 && self.time == 5 {
+            // T5JSRB
+            unimplemented!();
+        }
+        if self.opcode & 0x4c == 0x4c && !self.opcode & 0x90 == 0x90 && g & 3 == 0 && self.time == 5 {
+            // T4JMP
+            unimplemented!();
+        }
+        if self.opcode & 0x4c == 0x4c && !self.opcode & 0xb0 == 0xb0 && g & 3 == 0 && self.time == 2 {
+            // T2JMPABS
+            unimplemented!();
+        }
+        if self.opcode & 0x28 == 0x28 && !self.opcode & 0x94 == 0x94 && g & 3 == 0 && self.time == 3 {
+            // T3PLAPLPB
+            unimplemented!();
+        }
+        if self.opcode & 0x10 == 0x10 && !self.opcode & 0x0c == 0x0c && g & 3 == 0 && self.time == 3 {
+            // T3BR
+            unimplemented!();
+        }
+        if self.opcode & 0x24 == 0x24 && !self.opcode & 0xd0 == 0xd0 && g & 3 == 0 && self.time == 0 {
+            // T0BITB
+            unimplemented!();
+        }
+        if self.opcode & 0x40 == 0x40 && !self.opcode & 0xbc == 0xbc && g & 3 == 0 && self.time == 4 {
+            // T4RTIB
+            unimplemented!();
+        }
+        if self.opcode & 0x28 == 0x28 && !self.opcode & 0xd4 == 0xd4 && g & 3 == 0 && self.time == 0 {
+            // T0PULP
+            unimplemented!();
+        }
+        if self.opcode & 0x08 == 0x08 && !self.opcode & 0x94 == 0x94 && g & 3 == 0 {
+            // PSHPULB
+            unimplemented!();
+        }
+        if self.opcode & 0xb8 == 0xb8 && !self.opcode & 0x44 == 0x44 && g & 3 == 0 {
+            // CLV
+            unimplemented!();
+        }
+        if self.opcode & 0x18 == 0x18 && !self.opcode & 0xc4 == 0xc4 && g & 3 == 0 && self.time == 0 {
+            // T0CLCSEC
+            unimplemented!();
+        }
+        if self.opcode & 0x58 == 0x58 && !self.opcode & 0x84 == 0x84 && g & 3 == 0 && self.time == 0 {
+            // T0CLISEI
+            unimplemented!();
+        }
+        if self.opcode & 0xd8 == 0xd8 && !self.opcode & 0x04 == 0x04 && g & 3 == 0 && self.time == 0 {
+            // T0CLDSED
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x80 == 0x80 {
+            // NI7P
+            unimplemented!();
+        }
+        if self.opcode & 0x00 == 0x00 && !self.opcode & 0x40 == 0x40 {
+            // NI6P
+            unimplemented!();
+        }
         self.time += 1;
-        if self.time == 1 {
-            // T1 - All instructions
-            self.instr_pc = self.reg_pc;
-            self.opcode = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            return
-        }
-
-        // NOP
-        if self.opcode == 0xea && self.time == 2 {
-            println!("{:04X}  {:02X}         NOP          {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-
-        // JMP absolute
-        if self.opcode == 0x4c && self.time == 2 {
-            self.fetch = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            return;
-        }
-        if self.opcode == 0x4c && self.time == 3 {
-            let pch = interconnect.read_byte(self.reg_pc);
-            self.reg_pc = ((pch as u16) << 8) | (self.fetch as u16);
-            println!("{:04X}  {:02X} {:02X} {:02X}   JMP ${:04X}     {:?}", self.instr_pc, self.opcode, self.fetch, pch, self.reg_pc, self);
-            self.time = 0;
-            return;
-        }
-        // JMP absolute indirect
-        if self.opcode == 0x6c && self.time == 2 {
-            self.address = interconnect.read_byte(self.reg_pc) as u16;
-            self.reg_pc += 1;
-            return;
-        }
-        if self.opcode == 0x6c && self.time == 3 {
-            let addrhi = interconnect.read_byte(self.reg_pc) as u16;
-            self.reg_pc += 1;
-            self.address |= addrhi << 8;
-            return
-        }
-        if self.opcode == 0x6c && self.time == 4 {
-            self.fetch = interconnect.read_byte(self.address);
-
-            // A quirk in the 6502 means the next fetch always takes place on 
-            // the same page
-            let addrlo = (self.address & 0xff) as u8;
-            let addrhi = self.address >> 8;
-            let addrlo = addrlo.wrapping_add(1);
-            self.address = (addrhi << 8) | (addrlo as u16);
-
-            return;
-        }
-        if self.opcode == 0x6c && self.time == 5 {
-            let addrhi = interconnect.read_byte(self.address) as u16;
-            self.reg_pc = (addrhi << 8) | (self.fetch as u16);
-            println!("{:04X}  {:02X} {:02X} {:02X}   JMP (${:04X}) = {:04X}     {:?}", self.instr_pc, self.opcode, self.address & 0xff, self.address >> 8, self.address, self.reg_pc, self);
-            self.time = 0;
-            return;
-        }
-
-        // LDX
-        if self.opcode == 0xa2 && self.time == 2 {
-            // T2 - LDX Immediate
-            let value = interconnect.read_byte(self.reg_pc);
-            self.reg_x = value;
-            self.reg_pc += 1;
-            self.reg_status.zero = value == 0;
-            self.reg_status.negative = (value & (1 << 7)) != 0;
-
-            println!("{:04X}  {:02X} {:02X}      LDX #${:02X}      {:?}", self.instr_pc, self.opcode, self.reg_x, self.reg_x, self);
-            self.time = 0;
-            return;
-        }
-        // LDY
-        if self.opcode == 0xa0 && self.time == 2 {
-            let value = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            self.ldy(value);
-
-            println!("{:04X}  {:02X} {:02X}      LDY #${:02X}      {:?}", self.instr_pc, self.opcode, self.reg_y, self.reg_y, self);
-            self.time = 0;
-            return;
-        }
-        // LDA
-        if self.opcode == 0xa9 && self.time == 2 {
-            let value = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            self.lda(value);
-
-            println!("{:04X}  {:02X} {:02X}      LDA #${:02X}      {:?}", self.instr_pc, self.opcode, self.reg_a, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // ASL - Accumulator
-        if self.opcode == 0x0a && self.time == 2 {
-            let acc = self.reg_a;
-            let val = self.asl(acc);
-            self.reg_a = val;
-
-            println!("{:04X}  {:02X}         ASL A       {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // LSR - Accumulator
-        if self.opcode == 0x4a && self.time == 2 {
-            let acc = self.reg_a;
-            let val = self.lsr(acc);
-            self.reg_a = val;
-
-            println!("{:04X}  {:02X}         LSR A       {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // ROR - Accumulator
-        if self.opcode == 0x6a && self.time == 2 {
-            let acc = self.reg_a;
-            let val = self.ror(acc);
-            self.reg_a = val;
-
-            println!("{:04X}  {:02X}         ROR A       {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // ROL - Accumulator
-        if self.opcode == 0x2a && self.time == 2 {
-            let acc = self.reg_a;
-            let val = self.rol(acc);
-            self.reg_a = val;
-
-            println!("{:04X}  {:02X}         ROL A       {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-
-        // PHP
-        if self.opcode == 0x08 && self.time == 2 {
-            // read the next instruction and discard it
-            return;
-        }
-        if self.opcode == 0x08 && self.time == 3 {
-            let mut reg_status = self.reg_status.clone();
-            // PHP  always pushes the break_command flag as 1
-            reg_status.break_command = true;
-            let val: u8 = reg_status.into();
-            self.stack_push(interconnect, val);
-            println!("{:04X}  {:02X}         PHP           {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // PHA
-        if self.opcode == 0x48 && self.time == 2 {
-            // read the next instruction and discard it
-            return;
-        }
-        if self.opcode == 0x48 && self.time == 3 {
-            let val = self.reg_a;
-            self.stack_push(interconnect, val);
-            println!("{:04X}  {:02X}         PHA           {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-
-        // PLA
-        if self.opcode == 0x68 && self.time == 2 {
-            // read the next instruction and discard
-            return;
-        }
-        if self.opcode == 0x68 && self.time == 3 {
-            self.reg_s += 1;
-            return;
-        }
-        if self.opcode == 0x68 && self.time == 4 {
-            let val = self.stack_peek(interconnect);
-            self.reg_a = val;
-
-            self.reg_status.zero = self.reg_a == 0;
-            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
-            println!("{:04X}  {:02X}         PLA           {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // PLP
-        if self.opcode == 0x28 && self.time == 2 {
-            // read the next instruction and discard
-            return;
-        }
-        if self.opcode == 0x28 && self.time == 3 {
-            self.reg_s += 1;
-            return;
-        }
-        if self.opcode == 0x28 && self.time == 4 {
-            let val = self.stack_peek(interconnect);
-            // PLP never sets the break_command flag
-            let val = val & 0xef;
-            self.reg_status = val.into();
-            println!("{:04X}  {:02X}         PLP           {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-
-        // TODO - RW ops should take 5 cycles
-        if self.is_zero_page(self.opcode) && self.time == 2 {
-            self.fetch = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            return;
-        }
-        if self.opcode == 0x05 && self.time == 3 {
-            let mask = interconnect.read_byte(self.fetch as u16);
-            self.ora(mask);
-
-            println!("{:04X}  {:02X} {:02X}      ORA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, mask, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0x06 && self.time == 3 {
-            let val = interconnect.read_byte(self.fetch as u16);
-            let val = self.asl(val);
-            interconnect.write_byte(self.fetch as u16, val);
-
-            println!("{:04X}  {:02X} {:02X}      ASL ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0x24 && self.time == 3 {
-            let mask = interconnect.read_byte(self.fetch as u16);
-            self.bit(mask);
-
-            println!("{:04X}  {:02X} {:02X}      BIT ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, mask, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0x25 && self.time == 3 {
-            let mask = interconnect.read_byte(self.fetch as u16);
-            self.reg_a &= mask;
-
-            self.reg_status.zero = self.reg_a == 0;
-            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
-            println!("{:04X}  {:02X} {:02X}      AND ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, mask, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0x26 && self.time == 3 {
-            let val = interconnect.read_byte(self.fetch as u16);
-            let val = self.rol(val);
-            interconnect.write_byte(self.fetch as u16, val);
-            println!("{:04X}  {:02X} {:02X}      ROL ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0x45 && self.time == 3 {
-            let mask = interconnect.read_byte(self.fetch as u16);
-            self.reg_a ^= mask;
-
-            self.reg_status.zero = self.reg_a == 0;
-            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
-            println!("{:04X}  {:02X} {:02X}      EOR ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, mask, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0x46 && self.time == 3 {
-            let val = interconnect.read_byte(self.fetch as u16);
-            let val = self.lsr(val);
-            interconnect.write_byte(self.fetch as u16, val);
-
-            println!("{:04X}  {:02X} {:02X}      LSR ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0x65 && self.time == 3 {
-            let val = interconnect.read_byte(self.fetch as u16);
-            self.adc(val);
-            println!("{:04X}  {:02X} {:02X}      ADC ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0x66 && self.time == 3 {
-            let val = interconnect.read_byte(self.fetch as u16);
-            let val = self.ror(val);
-            interconnect.write_byte(self.fetch as u16, val);
-            println!("{:04X}  {:02X} {:02X}      ROR ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0x84 && self.time == 3 {
-            interconnect.write_byte(self.fetch as u16, self.reg_y);
-            println!("{:04X}  {:02X} {:02X}      STY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_y, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0x85 && self.time == 3 {
-            interconnect.write_byte(self.fetch as u16, self.reg_a);
-            println!("{:04X}  {:02X} {:02X}      STA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0x86 && self.time == 3 {
-            interconnect.write_byte(self.fetch as u16, self.reg_x);
-            println!("{:04X}  {:02X} {:02X}      STX ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_x, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0xa4 && self.time == 3 {
-            let val = interconnect.read_byte(self.fetch as u16);
-            self.ldy(val);
-
-            println!("{:04X}  {:02X} {:02X}      LDY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_y, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0xa5 && self.time == 3 {
-            let val = interconnect.read_byte(self.fetch as u16);
-            self.lda(val);
-            println!("{:04X}  {:02X} {:02X}      LDA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0xa6 && self.time == 3 {
-            let val = interconnect.read_byte(self.fetch as u16);
-            self.reg_x = val;
-            self.reg_status.zero = val == 0;
-            self.reg_status.negative = (val & (1 << 7)) != 0;
-            println!("{:04X}  {:02X} {:02X}      LDX ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, self.reg_x, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0xc4 && self.time == 3 {
-            let val = interconnect.read_byte(self.fetch as u16);
-            self.cpy(val);
-
-            println!("{:04X}  {:02X} {:02X}      CPY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0xc5 && self.time == 3 {
-            let val = interconnect.read_byte(self.fetch as u16);
-            self.cmp(val);
-            println!("{:04X}  {:02X} {:02X}      CMP ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0xc6 && self.time == 3 {
-            let val = interconnect.read_byte(self.fetch as u16);
-            let val = self.dec(val);
-            interconnect.write_byte(self.fetch as u16, val);
-            println!("{:04X}  {:02X} {:02X}      DEC ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0xe4 && self.time == 3 {
-            let val = interconnect.read_byte(self.fetch as u16);
-            self.cpx(val);
-            println!("{:04X}  {:02X} {:02X}      CPX ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0xe5 && self.time == 3 {
-            let val = !interconnect.read_byte(self.fetch as u16);
-            self.adc(val);
-            println!("{:04X}  {:02X} {:02X}      SBC ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0xe6 && self.time == 3 {
-            let val = interconnect.read_byte(self.fetch as u16);
-            let val = self.inc(val);
-            interconnect.write_byte(self.fetch as u16, val);
-            println!("{:04X}  {:02X} {:02X}      INC ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.fetch, val, self);
-            self.time = 0;
-            return;
-        }
-
-        // Zero Page Indexed addressing
-        if self.is_zero_indexed(self.opcode) && self.time == 2 {
-            self.address = interconnect.read_byte(self.reg_pc) as u16;
-            self.reg_pc = self.reg_pc.wrapping_add(1);
-            return
-        }
-        if self.is_zero_indexed(self.opcode) && self.time == 3 {
-            self.address = self.address.wrapping_add(self.reg_x as u16);
-            self.address &= 0xff;
-            return
-        }
-        // ORA zero page indexed
-        if self.opcode == 0x15 && self.time == 4 {
-            let value = interconnect.read_byte(self.address);
-            self.ora(value);
-
-            println!("{:04X}  {:02X} {:02X}      ORA ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
-            self.time = 0;
-            return;
-        }
-        // AND zero page indexed
-        if self.opcode == 0x35 && self.time == 4 {
-            let value = interconnect.read_byte(self.address);
-            self.and(value);
-
-            println!("{:04X}  {:02X} {:02X}      AND ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
-            self.time = 0;
-            return;
-        }
-        // STY zero page indexed
-        if self.opcode == 0x94 && self.time == 4 {
-            interconnect.write_byte(self.address, self.reg_y);
-
-            println!("{:04X}  {:02X} {:02X}      STY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, self.reg_y, self);
-            self.time = 0;
-            return;
-        }
-        // LDY zero page indexed
-        if self.opcode == 0xb4 && self.time == 4 {
-            let value = interconnect.read_byte(self.address);
-            self.ldy(value);
-
-            println!("{:04X}  {:02X} {:02X}      LDY ${:02X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address as u8, value, self);
-            self.time = 0;
-            return;
-        }
-
-        // Absolute addressing
-        if self.is_absolute(self.opcode) && self.time == 2 {
-            self.fetch = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            return;
-        }
-        if self.is_absolute(self.opcode) && self.time == 3 {
-            let addr_hi = interconnect.read_byte(self.reg_pc) as u16;
-            self.reg_pc += 1;
-            self.address = (addr_hi << 8) | self.fetch as u16;
-            return
-        }
-        // ORA Absolute
-        if self.opcode == 0x0d && self.time == 4 {
-            let mask = interconnect.read_byte(self.address);
-            self.ora(mask);
-            println!("{:04X}  {:02X} {:02X} {:02X}   ORA ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // ASL Absolute
-        if self.opcode == 0x0e && self.time == 4 {
-            self.fetch = interconnect.read_byte(self.address);
-            return;
-        }
-        if self.opcode == 0x0e && self.time == 5 {
-            let val = self.fetch;
-            self.fetch = self.asl(val);
-            return;
-        }
-        if self.opcode == 0x0e && self.time == 6 {
-            interconnect.write_byte(self.address, self.fetch);
-            println!("{:04X}  {:02X} {:02X} {:02X}   ASL ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, self.fetch, self);
-            self.time = 0;
-            return;
-        }
-        // BIT Absolute
-        if self.opcode == 0x2c && self.time == 4 {
-            let mask = interconnect.read_byte(self.address);
-            self.bit(mask);
-            println!("{:04X}  {:02X} {:02X} {:02X}   BIT ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // AND Absolute
-        if self.opcode == 0x2d && self.time == 4 {
-            let mask = interconnect.read_byte(self.address);
-            self.and(mask);
-            println!("{:04X}  {:02X} {:02X} {:02X}   AND ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // ROL Absolute
-        if self.opcode == 0x2e && self.time == 4 {
-            self.fetch = interconnect.read_byte(self.address);
-            return;
-        }
-        if self.opcode == 0x2e && self.time == 5 {
-            let val = self.fetch;
-            self.fetch = self.rol(val);
-            return;
-        }
-        if self.opcode == 0x2e && self.time == 6 {
-            interconnect.write_byte(self.address, self.fetch);
-            println!("{:04X}  {:02X} {:02X} {:02X}   ROL ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, self.fetch, self);
-            self.time = 0;
-            return;
-        }
-        // EOR Absolute
-        if self.opcode == 0x4d && self.time == 4 {
-            let mask = interconnect.read_byte(self.address);
-            self.eor(mask);
-            println!("{:04X}  {:02X} {:02X} {:02X}   EOR ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // LSR Absolute
-        if self.opcode == 0x4e && self.time == 4 {
-            self.fetch = interconnect.read_byte(self.address);
-            return;
-        }
-        if self.opcode == 0x4e && self.time == 5 {
-            let val = self.fetch;
-            self.fetch = self.lsr(val);
-            return;
-        }
-        if self.opcode == 0x4e && self.time == 6 {
-            interconnect.write_byte(self.address, self.fetch);
-            println!("{:04X}  {:02X} {:02X} {:02X}   LSR ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, self.fetch, self);
-            self.time = 0;
-            return;
-        }
-        // ADC Absolute
-        if self.opcode == 0x6d && self.time == 4 {
-            let val = interconnect.read_byte(self.address);
-            self.adc(val);
-            println!("{:04X}  {:02X} {:02X} {:02X}   ADC ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // ROR Absolute
-        if self.opcode == 0x6e && self.time == 4 {
-            self.fetch = interconnect.read_byte(self.address);
-            return;
-        }
-        if self.opcode == 0x6e && self.time == 5 {
-            let val = self.fetch;
-            self.fetch = self.ror(val);
-            return;
-        }
-        if self.opcode == 0x6e && self.time == 6 {
-            interconnect.write_byte(self.address, self.fetch);
-            println!("{:04X}  {:02X} {:02X} {:02X}   ROR ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, self.fetch, self);
-            self.time = 0;
-            return;
-        }
-        // STY Absolute
-        if self.opcode == 0x8c && self.time == 4 {
-            interconnect.write_byte(self.address, self.reg_y);
-            println!("{:04X}  {:02X} {:02X} {:02X}   STY ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_y, self);
-            self.time = 0;
-            return;
-        }
-        // STA Absolute
-        if self.opcode == 0x8d && self.time == 4 {
-            interconnect.write_byte(self.address, self.reg_a);
-            println!("{:04X}  {:02X} {:02X} {:02X}   STA ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // STX Absolute
-        if self.opcode == 0x8e && self.time == 4 {
-            interconnect.write_byte(self.address, self.reg_x);
-            println!("{:04X}  {:02X} {:02X} {:02X}   STX ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_x, self);
-            self.time = 0;
-            return;
-        }
-        // LDY Absolute
-        if self.opcode == 0xac && self.time == 4 {
-            let val = interconnect.read_byte(self.address);
-            self.ldy(val);
-            println!("{:04X}  {:02X} {:02X} {:02X}   LDY ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_y, self);
-            self.time = 0;
-            return;
-        }
-        // LDX Absolute
-        if self.opcode == 0xae && self.time == 4 {
-            let val = interconnect.read_byte(self.address);
-            self.reg_x = val;
-            self.reg_status.zero = val == 0;
-            self.reg_status.negative = (val & (1 << 7)) != 0;
-            println!("{:04X}  {:02X} {:02X} {:02X}   LDX ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_x, self);
-            self.time = 0;
-            return;
-        }
-        // LDA Absolute
-        if self.opcode == 0xad && self.time == 4 {
-            let val = interconnect.read_byte(self.address);
-            self.lda(val);
-            println!("{:04X}  {:02X} {:02X} {:02X}   LDA ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // CPY Absolute
-        if self.opcode == 0xcc && self.time == 4 {
-            let val = interconnect.read_byte(self.address);
-            self.cpy(val);
-            println!("{:04X}  {:02X} {:02X} {:02X}   CPY ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_y, self);
-            self.time = 0;
-            return;
-        }
-        // CMP Absolute
-        if self.opcode == 0xcd && self.time == 4 {
-            let val = interconnect.read_byte(self.address);
-            self.cmp(val);
-            println!("{:04X}  {:02X} {:02X} {:02X}   CMP ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // DEC Absolute
-        if self.opcode == 0xce && self.time == 4 {
-            self.fetch = interconnect.read_byte(self.address);
-            return;
-        }
-        if self.opcode == 0xce && self.time == 5 {
-            let val = self.fetch;
-            self.fetch = self.dec(val);
-            return;
-        }
-        if self.opcode == 0xce && self.time == 6 {
-            interconnect.write_byte(self.address, self.fetch);
-            println!("{:04X}  {:02X} {:02X} {:02X}   DEC ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, self.fetch, self);
-            self.time = 0;
-            return;
-        }
-        // CPX Absolute
-        if self.opcode == 0xec && self.time == 4 {
-            let val = interconnect.read_byte(self.address);
-            self.cpx(val);
-            println!("{:04X}  {:02X} {:02X} {:02X}   CPX ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_x, self);
-            self.time = 0;
-            return;
-        }
-        // SBC Absolute
-        if self.opcode == 0xed && self.time == 4 {
-            let val = interconnect.read_byte(self.address);
-            self.adc(!val);
-            println!("{:04X}  {:02X} {:02X} {:02X}   SBC ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.fetch, self.address >> 8, self.address, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // INC Absolute
-        if self.opcode == 0xee && self.time == 4 {
-            self.fetch = interconnect.read_byte(self.address);
-            return;
-        }
-        if self.opcode == 0xee && self.time == 5 {
-            let val = self.fetch;
-            self.fetch = self.inc(val);
-            return;
-        }
-        if self.opcode == 0xee && self.time == 6 {
-            interconnect.write_byte(self.address, self.fetch);
-            println!("{:04X}  {:02X} {:02X} {:02X}   INC ${:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, self.fetch, self);
-            self.time = 0;
-            return;
-        }
-
-        // Absolute Indexed (Y) Addressing
-        // TODO - These instructions should be 5 cycles if we cross a page boundary
-        if self.is_absolute_y(self.opcode) && self.time == 2 {
-            self.address = interconnect.read_byte(self.reg_pc) as u16;
-            self.reg_pc += 1;
-            return;
-        }
-        if self.is_absolute_y(self.opcode) && self.time == 3 {
-            let addrhi = interconnect.read_byte(self.reg_pc) as u16;
-            self.reg_pc += 1;
-            self.address |= addrhi << 8;
-            return;
-        }
-        // ORA absolute indexed y
-        if self.opcode == 0x19 && self.time == 4 {
-            let addr = self.address.wrapping_add(self.reg_y as u16);
-            let value = interconnect.read_byte(addr);
-            self.ora(value);
-
-            println!("{:04X}  {:02X} {:02X} {:02X}   ORA ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // AND absolute indexed y
-        if self.opcode == 0x39 && self.time == 4 {
-            let addr = self.address.wrapping_add(self.reg_y as u16);
-            let value = interconnect.read_byte(addr);
-            self.and(value);
-
-            println!("{:04X}  {:02X} {:02X} {:02X}   AND ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // EOR absolute indexed y
-        if self.opcode == 0x59 && self.time == 4 {
-            let addr = self.address.wrapping_add(self.reg_y as u16);
-            let value = interconnect.read_byte(addr);
-            self.eor(value);
-
-            println!("{:04X}  {:02X} {:02X} {:02X}   EOR ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // ADC absolute indexed y
-        if self.opcode == 0x79 && self.time == 4 {
-            let addr = self.address.wrapping_add(self.reg_y as u16);
-            let value = interconnect.read_byte(addr);
-            self.adc(value);
-
-            println!("{:04X}  {:02X} {:02X} {:02X}   ADC ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // STA absolute indexed y
-        if self.opcode == 0x99 && self.time == 4 {
-            let addr = self.address.wrapping_add(self.reg_y as u16);
-            interconnect.write_byte(addr, self.reg_a);
-
-            println!("{:04X}  {:02X} {:02X} {:02X}   LDA ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // LDA absolute indexed y
-        if self.opcode == 0xb9 && self.time == 4 {
-            let addr = self.address.wrapping_add(self.reg_y as u16);
-            let value = interconnect.read_byte(addr);
-            self.lda(value);
-
-            println!("{:04X}  {:02X} {:02X} {:02X}   LDA ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // CMP absolute indexed y
-        if self.opcode == 0xd9 && self.time == 4 {
-            let addr = self.address.wrapping_add(self.reg_y as u16);
-            let value = interconnect.read_byte(addr);
-            self.cmp(value);
-
-            println!("{:04X}  {:02X} {:02X} {:02X}   CMP ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // SBC absolute indexed y
-        if self.opcode == 0xf9 && self.time == 4 {
-            let addr = self.address.wrapping_add(self.reg_y as u16);
-            let value = interconnect.read_byte(addr);
-            self.adc(!value);
-
-            println!("{:04X}  {:02X} {:02X} {:02X}   SBC ${:04X},Y @{:04X} = {:02X}  {:?}", self.instr_pc, self.opcode, self.address as u8, self.address >> 8, self.address, addr, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-
-        // Indexed Indirect Addressing
-        if self.is_indexed_indirect(self.opcode) && self.time == 2 {
-            self.fetch = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            print!("{0:04X}  {1:02X} {2:02X}      {3} (${2:02X}, X) @ {2:02X} = ", self.instr_pc, self.opcode, self.fetch, self.opcode_name(self.opcode));
-            return;
-        }
-        if self.is_indexed_indirect(self.opcode) && self.time == 3 {
-            self.fetch = self.fetch.wrapping_add(self.reg_x);
-            return;
-        }
-        if self.is_indexed_indirect(self.opcode) && self.time == 4 {
-            let addr_lo = interconnect.read_byte(self.fetch as u16) as u16;
-            self.address = addr_lo;
-            return;
-        }
-        if self.is_indexed_indirect(self.opcode) && self.time == 5 {
-            let addr_hi = interconnect.read_byte(self.fetch.wrapping_add(1) as u16) as u16;
-            self.address |= addr_hi << 8;
-            return;
-        }
-        // ORA
-        if self.opcode == 0x01 && self.time == 6 {
-            let mask = interconnect.read_byte(self.address);
-            self.ora(mask);
-
-            println!("{:04X} =  {:02X}       {:?}", self.address, mask, self);
-            self.time = 0;
-            return;
-        }
-        // AND
-        if self.opcode == 0x21 && self.time == 6 {
-            let mask = interconnect.read_byte(self.address);
-            self.and(mask);
-            println!("{:04X} =  {:02X}       {:?}", self.address, mask, self);
-            self.time = 0;
-            return;
-        }
-        // EOR
-        if self.opcode == 0x41 && self.time == 6 {
-            let mask = interconnect.read_byte(self.address);
-            self.eor(mask);
-            println!("{:04X} =  {:02X}       {:?}", self.address, mask, self);
-            self.time = 0;
-            return;
-        }
-        // ADC
-        if self.opcode == 0x61 && self.time == 6 {
-            let val = interconnect.read_byte(self.address);
-            self.adc(val);
-
-            println!("{:04X} = {:02X}        {:?}", self.address, val, self);
-            self.time = 0;
-            return;
-        }
-        // STA
-        if self.opcode == 0x81 && self.time == 6 {
-            interconnect.write_byte(self.address, self.reg_a);
-
-            println!("{:04X} = {:02X}   {:?}", self.address, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // LDA
-        if self.opcode == 0xa1 && self.time == 6 {
-            let value = interconnect.read_byte(self.address);
-            self.lda(value);
-
-            println!("{:04X} = {:02X}   {:?}", self.address, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-        // CMP
-        if self.opcode == 0xc1 && self.time == 6 {
-            let val = interconnect.read_byte(self.address);
-            self.cmp(val);
-
-            println!("{:04X} = {:02X}   {:?}", self.address, val, self);
-            self.time = 0;
-            return;
-        }
-        if self.opcode == 0xe1 && self.time == 6 {
-            let val = !interconnect.read_byte(self.address);
-            self.adc(val);
-
-            println!("{:04X} = {:02X}        {:?}", self.address, val, self);
-            self.time = 0;
-            return;
-        }
-
-        // Indirect Indexed Addressing
-        // TODO - these instructions should take an extra cycle if we cross a page boundary
-        if self.is_indirect_indexed(self.opcode) && self.time == 2 {
-            self.fetch = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            return;
-        }
-        if self.is_indirect_indexed(self.opcode) && self.time == 3 {
-            self.address = interconnect.read_byte(self.fetch as u16) as u16;
-            let val = self.fetch.wrapping_add(1);
-            self.fetch = val;
-            return;
-        }
-        if self.is_indirect_indexed(self.opcode) && self.time == 4 {
-            let addrhi = interconnect.read_byte(self.fetch as u16) as u16;
-            let address = (addrhi << 8) | self.address;
-            self.address = address.wrapping_add(self.reg_y as u16);
-            print!("{0:04X}  {1:02X} {2:02X}      {3} (${2:02X}, X) @ {2:02X} = ", self.instr_pc, self.opcode, self.fetch, self.opcode_name(self.opcode));
-            return;
-        }
-        // ORA indirect indexed
-        if self.opcode == 0x11 && self.time == 5 {
-            let value = interconnect.read_byte(self.address);
-            self.ora(value);
-
-            println!("{:04X} = {:02X}   {:?}", self.address, value, self);
-            self.time = 0;
-            return;
-        }
-        // AND indirect indexed
-        if self.opcode == 0x31 && self.time == 5 {
-            let value = interconnect.read_byte(self.address);
-            self.and(value);
-
-            println!("{:04X} = {:02X}   {:?}", self.address, value, self);
-            self.time = 0;
-            return;
-        }
-        // EOR indirect indexed
-        if self.opcode == 0x51 && self.time == 5 {
-            let value = interconnect.read_byte(self.address);
-            self.eor(value);
-
-            println!("{:04X} = {:02X}   {:?}", self.address, value, self);
-            self.time = 0;
-            return;
-        }
-        // ADC indirect indexed
-        if self.opcode == 0x71 && self.time == 5 {
-            let value = interconnect.read_byte(self.address);
-            self.adc(value);
-
-            println!("{:04X} = {:02X}   {:?}", self.address, value, self);
-            self.time = 0;
-            return;
-        }
-        // LDA indirect indexed
-        if self.opcode == 0xb1 && self.time == 5 {
-            let value = interconnect.read_byte(self.address);
-            self.lda(value);
-
-            println!("{:04X} = {:02X}   {:?}", self.address, value, self);
-            self.time = 0;
-            return;
-        }
-        // CMP indirect indexed
-        if self.opcode == 0xd1 && self.time == 5 {
-            let value = interconnect.read_byte(self.address);
-            self.cmp(value);
-
-            println!("{:04X} = {:02X}   {:?}", self.address, value, self);
-            self.time = 0;
-            return;
-        }
-        // SBC indirect indexed
-        if self.opcode == 0xf1 && self.time == 5 {
-            let value = interconnect.read_byte(self.address);
-            self.adc(!value);
-
-            println!("{:04X} = {:02X}   {:?}", self.address, value, self);
-            self.time = 0;
-            return;
-        }
-        // STA indirect indexed
-        if self.opcode == 0x91 && self.time == 5 {
-            // This cycle is used to fix up the address if a page boundary was crossed
-            return;
-        }
-        if self.opcode == 0x91 && self.time == 6 {
-            interconnect.write_byte(self.address, self.reg_a);
-
-            println!("{:04X} = {:02X}   {:?}", self.address, self.reg_a, self);
-            self.time = 0;
-            return;
-        }
-
-
-
-        // JSR
-        if self.opcode == 0x20 && self.time == 2{
-            self.fetch = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            return;
-        }
-        if self.opcode == 0x20 && self.time == 3{
-            // internal operation (predecrement S?)
-            return;
-        }
-        if self.opcode == 0x20 && self.time == 4{
-            let byte = (self.reg_pc >> 8) as u8;
-            self.stack_push(interconnect, byte);
-            return;
-        }
-        if self.opcode == 0x20 && self.time == 5{
-            let byte = self.reg_pc as u8;
-            self.stack_push(interconnect, byte);
-            return;
-        }
-        if self.opcode == 0x20 && self.time == 6{
-            let pch = interconnect.read_byte(self.reg_pc);
-            self.reg_pc = ((pch as u16) << 8) | (self.fetch as u16);
-            println!("{:04X}  {:02X} {:02X} {:02X}   JSR ${:04X}    {:?}", self.instr_pc, self.opcode, self.fetch, pch, self.reg_pc, self);
-            self.time = 0;
-            return;
-        }
-
-        // RTS
-        if self.opcode == 0x60 && self.time == 2 {
-            // Read next instruction and discard
-            return;
-        }
-        if self.opcode == 0x60 && self.time == 3 {
-            self.reg_s += 1;
-            return;
-        }
-        if self.opcode == 0x60 && self.time == 4 {
-            let pcl = self.stack_peek(interconnect) as u16;
-            self.reg_s += 1;
-            self.reg_pc = (self.reg_pc & 0xff00) | pcl;
-            return;
-        }
-        if self.opcode == 0x60 && self.time == 5 {
-            let pch = self.stack_peek(interconnect) as u16;
-            self.reg_pc = (pch << 8) | (self.reg_pc & 0xff);
-            return;
-        }
-        if self.opcode == 0x60 && self.time == 6 {
-            self.reg_pc += 1;
-            println!("{:04X}  {:02X}         RTS          {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-
-        // RTS
-        if self.opcode == 0x40 && self.time == 2 {
-            // read the next instruction and discard it
-            return;
-        }
-        if self.opcode == 0x40 && self.time == 3 {
-            self.reg_s += 1;
-            return;
-        }
-        if self.opcode == 0x40 && self.time == 4 {
-            let val = self.stack_peek(interconnect);
-            self.reg_s += 1;
-            self.reg_status = val.into();
-            return;
-        }
-        if self.opcode == 0x40 && self.time == 5 {
-            let pcl = self.stack_peek(interconnect) as u16;
-            self.reg_pc = (self.reg_pc & 0xff00) | pcl;
-            self.reg_s += 1;
-            return;
-        }
-        if self.opcode == 0x40 && self.time == 6 {
-            let pch = self.stack_peek(interconnect) as u16;
-            self.reg_pc = (pch << 8) | (self.reg_pc & 0x00ff);
-            println!("{:04X}  {:02X}         RTI          {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-
-        // SEC
-        if self.opcode == 0x38 && self.time == 2 {
-            self.reg_status.carry = true;
-            println!("{:04X}  {:02X}         SEC          {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // CLC
-        if self.opcode == 0x18 && self.time == 2 {
-            self.reg_status.carry = false;
-            println!("{:04X}  {:02X}         CLC          {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // CLV
-        if self.opcode == 0xb8 && self.time == 2 {
-            self.reg_status.overflow = false;
-            println!("{:04X}  {:02X}         CLV          {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // SEI
-        if self.opcode == 0x78 && self.time == 2 {
-            self.reg_status.interrupt_disable = true;
-            println!("{:04X}  {:02X}         SEI          {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // CLI
-        if self.opcode == 0x58 && self.time == 2 {
-            self.reg_status.interrupt_disable = false;
-            println!("{:04X}  {:02X}         CLI          {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // SED
-        if self.opcode == 0xf8 && self.time == 2 {
-            // TODO - I think this is a NOP on the NES which always has decimal disabled
-            self.reg_status.decimal = true;
-            println!("{:04X}  {:02X}         SED          {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // CLD
-        if self.opcode == 0xD8 && self.time == 2 {
-            // TODO - I think this is a NOP on the NES which always has decimal disabled
-            self.reg_status.decimal = false;
-            println!("{:04X}  {:02X}         CLD          {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-
-        // Relative branch - based on reg_status values
-        if self.is_branch(self.opcode) && self.time == 2 {
-            self.fetch = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            return;
-        }
-        if self.is_branch(self.opcode) && self.time == 3 {
-            if self.take_branch(self.opcode) {
-                // TODO - this operation should take 2 cycles
-                // we should increment the low byte of pc in this cycle
-                // and increment the high bytes in the next if necessary
-                self.reg_pc += self.fetch as u16;
-            } else {
-            println!("{:04X}  {:02X} {:02X}      {} ${:04X}    {:?}", self.instr_pc, self.opcode, self.fetch, self.opcode_name(self.opcode), self.reg_pc + self.fetch as u16, self);
-            self.time = 0;
-            }
-            return;
-        }
-        if self.is_branch(self.opcode) && self.time == 4 {
-            // TODO - we should increment the high order byte of pc here if the
-            // low order addition overflowed, and we should run for 5 cycles if
-            // that happens
-            println!("{:04X}  {:02X} {:02X}      {} ${:04X}    {:?}", self.instr_pc, self.opcode, self.fetch, self.opcode_name(self.opcode), self.reg_pc, self);
-            self.time = 0;
-            return;
-        }
-        if self.is_branch(self.opcode) && self.time == 5 {
-        }
-
-        // INY
-        if self.opcode == 0xc8 && self.time == 2 {
-            self.reg_y = self.reg_y.wrapping_add(1);
-            self.reg_status.zero = self.reg_y == 0;
-            self.reg_status.negative = (self.reg_y & (1 << 7)) != 0;
-            println!("{:04X}  {:02X}         INY           {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // INX
-        if self.opcode == 0xe8 && self.time == 2 {
-            self.reg_x = self.reg_x.wrapping_add(1);
-            self.reg_status.zero = self.reg_x == 0;
-            self.reg_status.negative = (self.reg_x & (1 << 7)) != 0;
-            println!("{:04X}  {:02X}         INX           {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // DEY
-        if self.opcode == 0x88 && self.time == 2 {
-            self.reg_y = self.reg_y.wrapping_sub(1);
-            self.reg_status.zero = self.reg_y == 0;
-            self.reg_status.negative = (self.reg_y & (1 << 7)) != 0;
-            println!("{:04X}  {:02X}         DEY           {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // DEX
-        if self.opcode == 0xca && self.time == 2 {
-            self.reg_x = self.reg_x.wrapping_sub(1);
-            self.reg_status.zero = self.reg_x == 0;
-            self.reg_status.negative = (self.reg_x & (1 << 7)) != 0;
-            println!("{:04X}  {:02X}         DEX           {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // TAY
-        if self.opcode == 0xa8 && self.time == 2 {
-            self.reg_y = self.reg_a;
-            self.reg_status.zero = self.reg_y == 0;
-            self.reg_status.negative = (self.reg_y & (1 << 7)) != 0;
-            println!("{:04X}  {:02X}         TAY           {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // TAX
-        if self.opcode == 0xaa && self.time == 2 {
-            self.reg_x = self.reg_a;
-            self.reg_status.zero = self.reg_x == 0;
-            self.reg_status.negative = (self.reg_x & (1 << 7)) != 0;
-            println!("{:04X}  {:02X}         TAX           {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // TYA
-        if self.opcode == 0x98 && self.time == 2 {
-            self.reg_a = self.reg_y;
-            self.reg_status.zero = self.reg_a == 0;
-            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
-            println!("{:04X}  {:02X}         TYA           {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // TXA
-        if self.opcode == 0x8a && self.time == 2 {
-            self.reg_a = self.reg_x;
-            self.reg_status.zero = self.reg_a == 0;
-            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
-            println!("{:04X}  {:02X}         TXA           {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // TSX
-        if self.opcode == 0xba && self.time == 2 {
-            self.reg_x = self.reg_s;
-            self.reg_status.zero = self.reg_x == 0;
-            self.reg_status.negative = (self.reg_x & (1 << 7)) != 0;
-            println!("{:04X}  {:02X}         TSX           {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-        // TXS
-        if self.opcode == 0x9a && self.time == 2 {
-            self.reg_s = self.reg_x;
-            println!("{:04X}  {:02X}         TXS           {:?}", self.instr_pc, self.opcode, self);
-            self.time = 0;
-            return;
-        }
-
-        // ORA
-        if self.opcode == 0x09 && self.time == 2 {
-            let mask = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            self.reg_a |= mask;
-
-            self.reg_status.zero = self.reg_a == 0;
-            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
-            println!("{:04X}  {:02X} {:02X}      ORA #${:02X}      {:?}", self.instr_pc, self.opcode, mask, mask, self);
-            self.time = 0;
-            return;
-        }
-        // AND
-        if self.opcode == 0x29 && self.time == 2 {
-            let mask = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            self.reg_a &= mask;
-
-            self.reg_status.zero = self.reg_a == 0;
-            self.reg_status.negative = (self.reg_a & (1 << 7)) != 0;
-            println!("{:04X}  {:02X} {:02X}      AND #${:02X}      {:?}", self.instr_pc, self.opcode, mask, mask, self);
-            self.time = 0;
-            return;
-        }
-        // EOR
-        if self.opcode == 0x49 && self.time == 2 {
-            let mask = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            self.eor(mask);
-            println!("{:04X}  {:02X} {:02X}      EOR #${:02X}      {:?}", self.instr_pc, self.opcode, mask, mask, self);
-            self.time = 0;
-            return;
-        }
-
-        // SBC
-        if self.opcode == 0xe9 && self.time == 2 {
-            let val = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            self.adc(!val);
-            println!("{:04X}  {:02X} {:02X}      {} #${:02X}      {:?}", self.instr_pc, self.opcode, val, self.opcode_name(self.opcode), val, self);
-            self.time = 0;
-            return;
-        }
-        // ADC
-        if (self.opcode == 0x69) && self.time == 2 {
-            let val = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            self.adc(val);
-            println!("{:04X}  {:02X} {:02X}      {} #${:02X}      {:?}", self.instr_pc, self.opcode, val, self.opcode_name(self.opcode), val, self);
-            self.time = 0;
-            return;
-        }
-
-        // CPY
-        if self.opcode == 0xc0 && self.time == 2 {
-            let val = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            self.cpy(val);
-
-            println!("{:04X}  {:02X} {:02X}      CPY #${:02X}      {:?}", self.instr_pc, self.opcode, val, val, self);
-            self.time = 0;
-            return;
-        }
-        // CMP
-        if self.opcode == 0xc9 && self.time == 2 {
-            let val = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            self.cmp(val);
-
-            println!("{:04X}  {:02X} {:02X}      CMP #${:02X}      {:?}", self.instr_pc, self.opcode, val, val, self);
-            self.time = 0;
-            return;
-        }
-        // CPX
-        if self.opcode == 0xe0 && self.time == 2 {
-            let val = interconnect.read_byte(self.reg_pc);
-            self.reg_pc += 1;
-            self.cpx(val);
-            println!("{:04X}  {:02X} {:02X}      CPX #${:02X}      {:?}", self.instr_pc, self.opcode, val, val, self);
-            self.time = 0;
-            return;
-        }
-
-        panic!("Unmatched opcode/time pair {:x}/{}", self.opcode, self.time);
     }
 
     fn stack_push(&mut self, interconnect: &mut Interconnect, val: u8) {
