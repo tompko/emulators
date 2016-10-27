@@ -2,9 +2,9 @@ import sys
 import os
 import re
 
-if len(sys.argv) < 1:
-    print("usage: #{$0} <value>")
-    os.exit()
+if len(sys.argv) < 2:
+    print("usage: {0} <value>".format(sys.argv[0]))
+    sys.exit()
 
 opc = eval(sys.argv[1])
 b0 = (opc & 1) != 0
