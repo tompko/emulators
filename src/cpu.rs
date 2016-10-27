@@ -62,8 +62,12 @@ impl Cpu {
     fn execute_cycle(&mut self, interconnect: &mut Interconnect) {
         if self.opcode & 0x00 == 0x00 && !self.opcode & 0x00 == 0x00 && self.time == 0 {
             // T0A
-            unimplemented!();
+            self.opcode = interconnect.read_byte(self.reg_pc);
+            self.reg_pc += 1;
         }
+
+        let g = self.opcode & 3;
+
         if self.opcode & 0x84 == 0x84 && !self.opcode & 0x60 == 0x60 && g & 3 == 0 {
             // STY
             unimplemented!();
