@@ -54,7 +54,7 @@ impl Cpu {
         let y = ((instr >> 4) & 0xf) as usize;
         let n = (instr & 0xf) as usize;
         let kk = (instr & 0xff) as u8;
-        let mut jmp = false;
+        self.pc += INSTRUCTION_SIZE;
 
         match opcode {
             0x0 => {
@@ -78,13 +78,11 @@ impl Cpu {
             0x1 => {
                 // 1nnn - JP addr
                 self.pc = nnn;
-                jmp = true;
             }
             0x2 => {
                 // 2nnn - CALL addr
                 self.stack.push(self.pc);
                 self.pc = nnn;
-                jmp = true;
             }
             0x3 => {
                 // 3xkk - SE Vx, byte
@@ -183,7 +181,6 @@ impl Cpu {
             0xb => {
                 // Bnnn - JP V0, addr
                 self.pc = (self.v[0] as u16) + nnn;
-                jmp = true;
             }
             0xc => {
                 // Cxkk - RND Vx, byte
@@ -228,7 +225,7 @@ impl Cpu {
                         // Fx0A - LD Vx, K
                         match interconnect.input.any_key_pressed() {
                             Some(index) => self.v[x] = index,
-                            None => jmp = true,
+                            None => self.pc -= INSTRUCTION_SIZE,
                         }
                     }
                     0x15 => {
@@ -273,10 +270,6 @@ impl Cpu {
             }
 
             _ => panic!("Unrecognized instruction 0x{:x} ({:x})", instr, opcode),
-        }
-
-        if !jmp {
-            self.pc += INSTRUCTION_SIZE;
         }
     }
 
