@@ -19,7 +19,7 @@ pub struct Cpu {
 
 impl Cpu {
     pub fn new() -> Cpu {
-        return Cpu{
+        Cpu{
             v: [0; 16],
             pc: END_RESERVED as u16,
             i: 0,
@@ -30,24 +30,9 @@ impl Cpu {
         }
     }
 
-    pub fn run(&mut self, interconnect: &mut Interconnect) {
-        loop {
-            let instr = interconnect.mem.read_word(self.pc);
+    pub fn step(&mut self, interconnect: &mut Interconnect) {
+        let instr = interconnect.mem.read_word(self.pc);
 
-            self.execute_instruction(instr, interconnect);
-
-            self.handle_timers();
-
-            interconnect.graphics.render();
-            interconnect.input.handle_input();
-
-            if interconnect.input.quit {
-                break;
-            }
-        }
-    }
-
-    pub fn execute_instruction(&mut self, instr: u16, interconnect: &mut Interconnect) {
         let opcode = (instr >> 12) as u8;
         let nnn = instr & 0xfff;
         let x = ((instr >> 8) & 0xf) as usize;
@@ -271,6 +256,8 @@ impl Cpu {
 
             _ => panic!("Unrecognized instruction 0x{:x} ({:x})", instr, opcode),
         }
+
+        self.handle_timers();
     }
 
     fn handle_timers(&mut self) {
@@ -281,6 +268,5 @@ impl Cpu {
                 self.delay_timer -= 1;
             }
         }
-
     }
 }

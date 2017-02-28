@@ -21,6 +21,15 @@ impl VM {
     }
 
     pub fn run(&mut self) {
-        self.cpu.run(&mut self.inter);
+        loop {
+            self.cpu.step(&mut self.inter);
+
+            self.inter.graphics.render();
+            self.inter.input.handle_input();
+
+            if self.inter.input.quit {
+                break;
+            }
+        }
     }
 }
