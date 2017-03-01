@@ -4,12 +4,14 @@ use super::rand;
 use super::time::{Duration, SteadyTime};
 
 const INSTRUCTION_SIZE: u16 = 2;
+const STACK_SIZE: usize = 16;
 
 pub struct Cpu {
     v: [u8; 16],
     pc: u16,
     i: u16,
-    stack: Vec<u16>,
+    stack: [u16; STACK_SIZE],
+    stack_index: usize,
 
     delay_timer: u8,
     sound_timer: u8,
@@ -23,7 +25,8 @@ impl Cpu {
             v: [0; 16],
             pc: END_RESERVED as u16,
             i: 0,
-            stack: Vec::new(),
+            stack: [0;16],
+            stack_index: 0,
             delay_timer: 0,
             sound_timer: 0,
             delay_start: SteadyTime::now(),
@@ -50,7 +53,7 @@ impl Cpu {
                     }
                     0xee => {
                         // 00EE - RET
-                        let ret = self.stack.pop().expect("ret without func call");
+                        let ret = self.pop();
                         self.pc = ret;
                     }
                     _ => {
@@ -66,7 +69,8 @@ impl Cpu {
             }
             0x2 => {
                 // 2nnn - CALL addr
-                self.stack.push(self.pc);
+                let pc = self.pc;
+                self.push(pc);
                 self.pc = nnn;
             }
             0x3 => {
@@ -268,5 +272,21 @@ impl Cpu {
                 self.delay_timer -= 1;
             }
         }
+    }
+
+    fn pop(&mut self) -> u16 {
+        if self.stack_index == 0 {
+            panic!("pop from empty stack");
+        }
+        self.stack_index -= 1;
+        self.stack[self.stack_index]
+    }
+
+    fn push(&mut self, val: u16) {
+        if self.stack_index == STACK_SIZE {
+            panic!("push to full stack");
+        }
+        self.stack[self.stack_index] = val;
+        self.stack_index += 1;
     }
 }
