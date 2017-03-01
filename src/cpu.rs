@@ -1,7 +1,7 @@
 use super::interconnect::Interconnect;
 use super::memory::END_RESERVED;
 use super::rand;
-use super::time::{Duration, SteadyTime};
+use super::timer::Timer;
 
 const INSTRUCTION_SIZE: u16 = 2;
 const STACK_SIZE: usize = 16;
@@ -13,10 +13,8 @@ pub struct Cpu {
     stack: [u16; STACK_SIZE],
     stack_index: usize,
 
-    delay_timer: u8,
-    sound_timer: u8,
-
-    delay_start: SteadyTime,
+    delay_timer: Timer,
+    sound_timer: Timer,
 }
 
 impl Cpu {
@@ -27,9 +25,9 @@ impl Cpu {
             i: 0,
             stack: [0;16],
             stack_index: 0,
-            delay_timer: 0,
-            sound_timer: 0,
-            delay_start: SteadyTime::now(),
+
+            delay_timer: Timer::new(),
+            sound_timer: Timer::new(),
         }
     }
 
@@ -208,7 +206,7 @@ impl Cpu {
                 match kk {
                     0x07 => {
                         // Fx07 - LD Vx, DT
-                        self.v[x] = self.delay_timer;
+                        self.v[x] = self.delay_timer.get();
                     }
                     0x0a => {
                         // Fx0A - LD Vx, K
@@ -220,11 +218,11 @@ impl Cpu {
                     0x15 => {
                         // Fx15 - LD DT, Vx
                         let val = self.v[x];
-                        self.delay_timer = val;
+                        self.delay_timer.set(val);
                     }
                     0x18 => {
                         // Fx18 - LD ST, Vx
-                        self.sound_timer = self.v[x];
+                        self.sound_timer.set(self.v[x]);
                     }
                     0x1E => {
                         // Fx1E - ADD I, Vx
@@ -265,13 +263,8 @@ impl Cpu {
     }
 
     fn handle_timers(&mut self) {
-        if self.delay_timer > 0 {
-            let now = SteadyTime::now();
-            if now - self.delay_start > Duration::milliseconds(16) {
-                self.delay_start = now;
-                self.delay_timer -= 1;
-            }
-        }
+        self.delay_timer.update();
+        self.sound_timer.update();
     }
 
     fn pop(&mut self) -> u16 {

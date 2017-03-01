@@ -16,6 +16,7 @@ mod input;
 mod interconnect;
 mod memory;
 mod vm;
+mod timer;
 
 fn main() {
     let matches = App::new("CHIP 8 Emulator")
