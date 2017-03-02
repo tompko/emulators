@@ -10,6 +10,7 @@ use std::io::Read;
 use clap::{Arg, App};
 use vm::VM;
 
+mod audio;
 mod cpu;
 mod graphics;
 mod input;

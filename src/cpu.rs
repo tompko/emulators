@@ -280,11 +280,20 @@ impl Cpu {
         }
 
         self.handle_timers();
+        self.handle_audio(interconnect);
     }
 
     fn handle_timers(&mut self) {
         self.delay_timer.update();
         self.sound_timer.update();
+    }
+
+    fn handle_audio(&self, interconnect: &mut Interconnect) {
+        if self.sound_timer.get() > 0 {
+            interconnect.audio.play();
+        } else {
+            interconnect.audio.stop();
+        }
     }
 
     fn pop(&mut self) -> u16 {
