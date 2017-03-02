@@ -105,15 +105,15 @@ impl Cpu {
                     }
                     0x1 => {
                         // 8xy1 - OR Vx, Vy
-                        self.v[x] = self.v[x] | self.v[y];
+                        self.v[x] |= self.v[y];
                     }
                     0x2 => {
                         // 8xy2 - AND Vx, Vy
-                        self.v[x] = self.v[x] & self.v[y];
+                        self.v[x] &= self.v[y];
                     }
                     0x3 => {
                         // 8xy3 - XOR Vx, Vy
-                        self.v[x] = self.v[x] ^ self.v[y];
+                        self.v[x] ^= self.v[y];
                     }
                     0x4 => {
                         // 8xy4 - ADD Vx, Vy
@@ -175,12 +175,12 @@ impl Cpu {
             }
             0xd => {
                 // Dxyn - DRW Vx, Vy, nibble
-                let mut sprite = vec![0; n as usize];
+                let mut sprite = vec![0 as u8; n as usize];
                 let vx = self.v[x] as usize;
                 let vy = self.v[y] as usize;
 
-                for i in 0..n {
-                    sprite[i] = interconnect.mem.read_byte(self.i + i as u16);
+                for (i, sprite) in sprite.iter_mut().enumerate() {
+                    *sprite = interconnect.mem.read_byte(self.i + i as u16);
                 }
 
                 self.v[0xf] = interconnect.graphics.draw(vx, vy, sprite);

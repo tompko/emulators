@@ -14,7 +14,7 @@ impl Interconnect {
     pub fn new() -> Interconnect {
         let context = sdl2::init().unwrap();
 
-        return Interconnect{
+        Interconnect{
             mem: Memory::new(),
             graphics: Graphics::new(&context),
             input: Input::new(&context),

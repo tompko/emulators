@@ -35,7 +35,7 @@ impl Memory {
             ram: vec![0; RAM_BYTES]
         };
         mem.load_fonts();
-        return mem;
+        mem
     }
 
     fn load_fonts(&mut self) {
@@ -48,17 +48,17 @@ impl Memory {
     }
 
     pub fn load_rom(&mut self, rom: Vec<u8>) {
-        for i in 0..rom.len() {
-            self.ram[i + END_RESERVED] = rom[i];
+        for (i, r) in rom.iter().enumerate() {
+            self.ram[i + END_RESERVED] = *r;
         }
     }
 
     pub fn read_word(&self, addr: u16) -> u16 {
-        return BigEndian::read_u16(&self.ram[addr as usize..]);
+        BigEndian::read_u16(&self.ram[addr as usize..])
     }
 
     pub fn read_byte(&self, addr: u16) -> u8 {
-        return self.ram[addr as usize];
+        self.ram[addr as usize]
     }
 
     pub fn write_byte(&mut self, addr: u16, val: u8) {
@@ -66,6 +66,6 @@ impl Memory {
     }
 
     pub fn get_digit_sprite(&self, val: u8) -> u16 {
-        return (val as u16) * (DIGIT_SIZE as u16);
+        (val as u16) * (DIGIT_SIZE as u16)
     }
 }

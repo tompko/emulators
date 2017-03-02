@@ -30,7 +30,7 @@ impl Graphics {
         renderer.clear();
         renderer.present();
 
-        return Graphics{
+        Graphics{
             renderer: renderer,
             screen: vec![0; SCREEN_WIDTH * SCREEN_HEIGHT],
         }
@@ -47,16 +47,16 @@ impl Graphics {
                 pixels[7-j] = (s >> j) & 0x1;
             }
 
-            for j in 0..8 {
+            for (j, p) in pixels.iter().enumerate() {
                 let dx = (x + j) % SCREEN_WIDTH;
                 let index = (dy * SCREEN_WIDTH) + dx;
 
                 collision |= self.screen[index];
-                self.screen[index] ^= pixels[j];
+                self.screen[index] ^= *p;
             }
         }
 
-        return collision;
+        collision
     }
 
     pub fn clear(&mut self) {

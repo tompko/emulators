@@ -52,5 +52,5 @@ fn read_rom(filename: &str) -> Vec<u8> {
     }
 
 
-    return buffer
+    buffer
 }

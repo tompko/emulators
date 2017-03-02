@@ -11,7 +11,7 @@ pub struct Input {
 
 impl Input {
     pub fn new(context: &sdl2::Sdl) -> Input {
-        return Input{
+        Input{
             event_pump: context.event_pump().unwrap(),
             keys: [false;16],
             quit: false,
@@ -65,7 +65,7 @@ impl Input {
     }
 
     pub fn key_pressed(&self, key_index: u8) -> bool {
-        return self.keys[key_index as usize];
+        self.keys[key_index as usize]
     }
 
     pub fn any_key_pressed(&self) -> Option<u8> {
@@ -74,6 +74,7 @@ impl Input {
                 return Some(i as u8);
             }
         }
-        return None;
+
+        None
     }
 }
