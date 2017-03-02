@@ -1,5 +1,6 @@
+use std::cmp;
 use super::interconnect::Interconnect;
-use super::memory::END_RESERVED;
+use super::memory::{END_RESERVED, RAM_BYTES};
 use super::rand;
 use super::timer::Timer;
 
@@ -10,6 +11,7 @@ pub struct Cpu {
     v: [u8; 16],
     pc: u16,
     i: u16,
+    schip_rpl_flags: [u8; 8],
     stack: [u16; STACK_SIZE],
     stack_index: usize,
 
@@ -23,6 +25,7 @@ impl Cpu {
             v: [0; 16],
             pc: END_RESERVED as u16,
             i: 0,
+            schip_rpl_flags: [0; 8],
             stack: [0;16],
             stack_index: 0,
 
@@ -127,7 +130,7 @@ impl Cpu {
                     }
                     0x5 => {
                         // 8xy5 - SUB Vx, Vy
-                        if self.v[x] > self.v[y] {
+                        if self.v[x] >= self.v[y] {
                             self.v[0xf] = 1;
                         } else {
                             self.v[0xf] = 0;
@@ -141,7 +144,7 @@ impl Cpu {
                     }
                     0x7 => {
                         // 8xy7 - SUBN Vx, Vy
-                        if self.v[y] > self.v[x] {
+                        if self.v[y] >= self.v[x] {
                             self.v[0xf] = 1;
                         } else {
                             self.v[0xf] = 0;
@@ -227,6 +230,11 @@ impl Cpu {
                     0x1E => {
                         // Fx1E - ADD I, Vx
                         self.i += self.v[x] as u16;
+                        if self.i >= RAM_BYTES as u16 {
+                            self.v[0xf] = 1;
+                        } else {
+                            self.v[0xf] = 0;
+                        }
                     }
                     0x29 => {
                         // Fx29 - LD F, Vx
@@ -250,6 +258,18 @@ impl Cpu {
                         // Fx65 - LD Vx, [I]
                         for i in 0..(x+1) {
                             self.v[i] = interconnect.mem.read_byte(self.i + i as u16);
+                        }
+                    }
+                    0x75 => {
+                        // Fx75 - LD R Vx
+                        for i in 0..cmp::min(x+1, 8) {
+                            self.schip_rpl_flags[i] = self.v[i];
+                        }
+                    }
+                    0x85 => {
+                        // Fx75 - LD Vx R
+                        for i in 0..cmp::min(x+1, 8) {
+                            self.v[i] = self.schip_rpl_flags[i];
                         }
                     }
                     _ => panic!("Unrecognized f variant {:x}({:x})", instr, kk),
