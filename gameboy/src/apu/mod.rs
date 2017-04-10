@@ -1,3 +1,5 @@
+mod unit;
+
 pub struct Apu {
     chan1_sweep: u8, // 0xff10 - Channel 1 Sweep Register
     chan1_pattern: u8, // 0xff11 - Channel 1 Sound length/Wave duty register
