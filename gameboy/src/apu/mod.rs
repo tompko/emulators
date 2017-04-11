@@ -1,4 +1,7 @@
 mod unit;
+mod channel;
+
+use self::channel::*;
 
 pub struct Apu {
     chan1_sweep: u8, // 0xff10 - Channel 1 Sweep Register
@@ -27,6 +30,8 @@ pub struct Apu {
     out_chan_control: u8,
     output_terminal: u8,
     sound_active: u8,
+
+    channel1: Channel1,
 }
 
 impl Apu {
@@ -58,6 +63,8 @@ impl Apu {
             out_chan_control: 0,
             output_terminal: 0,
             sound_active: 0,
+
+            channel1: Channel1::new(),
         }
     }
 

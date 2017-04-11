@@ -1,5 +1,17 @@
 use std::cmp;
 
+pub trait AudioStep {
+    fn step(&mut self, frame_seq: &FrameSequencer);
+}
+
+pub trait AudioSource: AudioStep {
+    fn generate(&mut self) -> u16;
+}
+
+pub trait AudioProcess: AudioStep {
+    fn process(&mut self, audio: u16) -> u16;
+}
+
 #[derive(Default)]
 pub struct FrameSequencer {
     state: u8,
@@ -25,25 +37,51 @@ impl FrameSequencer {
 
 #[derive(Default)]
 pub struct Timer {
-    frequency: u8,
-    counter: u8,
+    frequency: u32,
+    counter: u32,
     fired: bool,
 }
 
 impl Timer {
-    pub fn step(&mut self) {
-        let (counter, fired) = self.counter.overflowing_add(self.frequency);
-        self.counter = counter;
-        self.fired = fired;
-    }
-
     pub fn clock(&self) -> bool {
         self.fired
     }
 
-    pub fn set_frequency(&mut self, frequency: u8) {
-        self.frequency = frequency;
+    pub fn set_frequency(&mut self, frequency: u16) {
+        self.frequency = frequency as u32;
         self.counter = 0;
+    }
+}
+
+impl AudioStep for Timer {
+    fn step(&mut self, _: &FrameSequencer) {
+        self.fired = false;
+        self.counter += self.frequency;
+
+        if self.counter > 0x00400000 {
+            self.counter -= 0x00400000;
+            self.fired = true;
+        }
+    }
+}
+
+impl AudioSource for Timer {
+    fn generate(&mut self) -> u16 {
+        if self.fired {
+            1
+        } else {
+            0
+        }
+    }
+}
+
+impl AudioProcess for Timer {
+    fn process(&mut self, audio: u16) -> u16 {
+        if audio != 0 {
+            self.set_frequency(audio);
+        }
+
+        self.generate()
     }
 }
 
@@ -54,21 +92,29 @@ pub struct LengthCounter {
 }
 
 impl LengthCounter {
-    pub fn step(&mut self) {
-        if self.enabled {
+    pub fn set_counter(&mut self, val: u8) {
+        self.counter = val;
+    }
+}
+
+impl AudioStep for LengthCounter {
+    fn step(&mut self, frame_seq: &FrameSequencer) {
+        if self.enabled && frame_seq.length_clock() {
             self.counter -= 1;
             if self.counter == 0 {
                 self.enabled = false;
             }
         }
     }
+}
 
-    pub fn is_enabled(&self) -> bool {
-        self.enabled
-    }
-
-    pub fn set_counter(&mut self, val: u8) {
-        self.counter = val;
+impl AudioProcess for LengthCounter {
+    fn process(&mut self, audio: u16) -> u16 {
+        if self.enabled && audio != 0 {
+            1
+        } else {
+            0
+        }
     }
 }
 
@@ -79,22 +125,32 @@ pub struct VolumeEnvelope {
 }
 
 impl VolumeEnvelope {
-    pub fn step(&mut self) {
-        if self.increment {
-            self.counter = cmp::min(self.counter + 1, 15);
-        } else {
-            self.counter = self.counter.saturating_sub(1);
-        }
-
-    }
-
     pub fn set_volume(&mut self, volume: u8, increment: bool) {
         self.counter = volume;
         self.increment = increment;
     }
 
-    pub fn get_volume(&self) -> u8 {
-        self.counter
+}
+
+impl AudioStep for VolumeEnvelope {
+    fn step(&mut self, frame_seq: &FrameSequencer) {
+        if frame_seq.volume_clock() {
+            if self.increment {
+                self.counter = cmp::min(self.counter + 1, 15);
+            } else {
+                self.counter = self.counter.saturating_sub(1);
+            }
+        }
+    }
+}
+
+impl AudioProcess for VolumeEnvelope {
+    fn process(&mut self, audio: u16) -> u16 {
+        if audio != 0 {
+            self.counter as u16
+        } else {
+            0
+        }
     }
 }
 
@@ -104,12 +160,17 @@ pub struct SquareWave {
     state: u8,
 }
 
-impl SquareWave {
-    pub fn step(&mut self) {
-        self.state = (self.state + 1) % 8;
+impl AudioStep for SquareWave {
+    fn step(&mut self, _: &FrameSequencer) {
     }
+}
 
-    pub fn get_active(&self) -> bool {
+impl AudioProcess for SquareWave {
+    fn process(&mut self, audio: u16) -> u16 {
+        if audio != 0 {
+            self.state = (self.state + 1) % 8;
+        }
+
         let waveform = match self.duty {
             0 => 0b00000001,
             1 => 0b10000001,
@@ -118,6 +179,24 @@ impl SquareWave {
             _ => unreachable!(),
         };
 
-        (waveform >> self.state) & 1 != 0
+        (waveform >> self.state)
+    }
+}
+
+#[derive(Default)]
+pub struct Sweep {
+    // TODO
+}
+
+impl AudioStep for Sweep {
+    fn step(&mut self, _: &FrameSequencer) {
+        // TODO
+    }
+}
+
+impl AudioSource for Sweep {
+    fn generate(&mut self) -> u16 {
+        // TODO
+        0
     }
 }
